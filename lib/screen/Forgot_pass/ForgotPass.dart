@@ -17,38 +17,40 @@ class ForgotPass extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title:Text("Forgot password",textAlign: TextAlign.end,),
-       
+        title: Text(
+          "Forgot password",
+          textAlign: TextAlign.end,
+        ),
       ),
       body: SizedBox(
-        width:double.maxFinite ,
-        child: SingleChildScrollView(
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 50,
-
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  const Text(
+                    "Forgot Password",
+                    style: TextStyle(
+                      fontSize: 28,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Please enter your email and we will send ",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  const ForgotPassForm(),
+                ],
               ),
-              const Text(
-                "Forgot Password",
-                style: TextStyle(
-                  fontSize: 28,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Please enter your email and we will send ",
-                textAlign: TextAlign.center,
-              ),
-               const SizedBox(height: 20),
-               const ForgotPassForm(),
-            ],
-          ),),
-          
-        )),
+            ),
+          )),
     );
   }
 }
@@ -64,16 +66,16 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-  List<String> errors = [];
-  String? email;
+    List<String> errors = [];
+    String? email;
     return Form(
       key: formKey,
       child: Column(
         children: [
           TextFormField(
             keyboardType: TextInputType.emailAddress,
-             onSaved: (newValue) => email = newValue,
-              onChanged: (value) {
+            onSaved: (newValue) => email = newValue,
+            onChanged: (value) {
               if (value.isNotEmpty && errors.contains(kEmailNullError)) {
                 setState(() {
                   errors.remove(kEmailNullError);
@@ -99,32 +101,32 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
               }
               return null;
             },
-            decoration:  InputDecoration(
-              labelText: "Email",
-              hintText: "Enter your email",
-              suffixIcon: const CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
-              border: inputDecorationTheme().border,
-            enabledBorder: inputDecorationTheme().enabledBorder,
-            focusedBorder: inputDecorationTheme().focusedBorder,
-            contentPadding: inputDecorationTheme().contentPadding,
-            floatingLabelBehavior:
-                inputDecorationTheme().floatingLabelBehavior),
-                
-
+            decoration: InputDecoration(
+                labelText: "Email",
+                hintText: "Enter your email",
+                suffixIcon:
+                    const CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
+                border: inputDecorationTheme().border,
+                enabledBorder: inputDecorationTheme().enabledBorder,
+                focusedBorder: inputDecorationTheme().focusedBorder,
+                contentPadding: inputDecorationTheme().contentPadding,
+                floatingLabelBehavior:
+                    inputDecorationTheme().floatingLabelBehavior),
           ),
-           SizedBox(height: 30),
-           FormError(errors: errors),
-           SizedBox(height: 10,),
-           DefaultButton(
+          SizedBox(height: 30),
+          FormError(errors: errors),
+          SizedBox(
+            height: 10,
+          ),
+          DefaultButton(
             text: "Continue",
             press: () {
               if (formKey.currentState!.validate()) {
-                // Do what you want to do
+                Navigator.pushNamed(context, "/otp");
               }
             },
-            
           ),
-          SizedBox(height:10),
+          SizedBox(height: 10),
           NoAccountText(),
         ],
       ),
