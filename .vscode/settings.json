@@ -1,0 +1,5 @@
+{
+    "genGetSet.classic": true,
+    "genGetSet.scanOnSave": true,
+    "genGetSet.spacedImportLine": true
+}

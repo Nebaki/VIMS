@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../Componets/defaualt_button.dart';
+import '../../../componets/defaualt_button.dart';
 import '../../../util/constants.dart';
 
 class OtpForm extends StatefulWidget {
@@ -44,7 +44,7 @@ class _OtpFormState extends State<OtpForm> {
     return Form(
       child: Column(
         children: [
-          SizedBox(height:15),
+          SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -87,7 +87,7 @@ class _OtpFormState extends State<OtpForm> {
                 ),
               ),
               SizedBox(
-                width:60,
+                width: 60,
                 child: TextFormField(
                   focusNode: pin4FocusNode,
                   obscureText: true,
@@ -105,7 +105,7 @@ class _OtpFormState extends State<OtpForm> {
               ),
             ],
           ),
-          SizedBox(height:15),
+          SizedBox(height: 15),
           DefaultButton(
             text: "Continue",
             press: () {},
