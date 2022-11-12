@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mob_app/controller/login.dart';
 import '../../../Componets/Custom_Icons.dart';
 import '../../../componets/Form_err.dart';
 import '../../../componets/defaualt_button.dart';
 import '../../../util/constants.dart';
 import '../../../helper/keyboard.dart';
-import 'package:http/http.dart' as http;
 
 class SignForm extends StatefulWidget {
   @override
@@ -38,44 +35,7 @@ class _SignFormState extends State<SignForm> {
 
   bool _isloading = false;
 
-  _login(String phone, String password) async {
-    var url = Uri.parse('http://vims.afrimedtravel.com/api/auth/login');
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map body = {'phone': phone, 'password': password};
-    try {
-      var response = await http.post(url, body: body);
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body.toString());
-        if (data != null) {
-          setState(() {
-            _isloading = false;
-          });
-          print('Login successfully');
-          Get.toNamed("/homepage");
-        } else {
-          _isloading = true;
-          print('Response body: ${data.body}');
-        }
-      } else {
-        Get.snackbar(
-          "unauthorized",
-          ".",
-          icon: const CustomSurffixIcon(
-            svgIcon: "assets/icons/Error.svg",
-            color: Colors.red,
-          ),
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        print(response.statusCode);
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  TextEditingController PhoneController = TextEditingController();
-  TextEditingController PasswordController = TextEditingController();
-
+  LoginController loginController = Get.put(LoginController());
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -103,8 +63,6 @@ class _SignFormState extends State<SignForm> {
                 onTap: () {
                   Get.toNamed("/forgot_pass");
                 },
-                //  => Navigator.pushNamed(
-                //     context, ForgotPasswordScreen.routeName),
                 child: const Text(
                   "Forgot Password",
                   style: TextStyle(decoration: TextDecoration.underline),
@@ -120,7 +78,7 @@ class _SignFormState extends State<SignForm> {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
                 KeyboardUtil.hideKeyboard(context);
-                _login(PhoneController.text, PasswordController.text);
+                loginController.login();
               }
             },
             onPressed: () {
@@ -160,7 +118,7 @@ class _SignFormState extends State<SignForm> {
         }
         return null;
       },
-      controller: PasswordController,
+      controller:loginController.passController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -195,7 +153,7 @@ class _SignFormState extends State<SignForm> {
         KeyboardUtil.hideKeyboard(context);
         return null;
       },
-      controller: PhoneController,
+      controller: loginController.phoneController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),

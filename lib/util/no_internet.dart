@@ -1,44 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class NoInternet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.all(10),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 150,
-              width: 150,
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 25),
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/images/no-internet.png"),
-                  fit: BoxFit.fill,
+      body: Center(
+        child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: EmptyFailureNoInternetView(
+                  image: 'assets/lottie/no_internet_lottie.json',
+                  title: 'Network Error',
+                  description: 'Internet not found !!',
                 ),
               ),
-            ),
-            const Text(
-              "No Internet Connection",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+      )
+    );
+  }
+}
+
+
+
+
+class EmptyFailureNoInternetView extends StatelessWidget {
+  EmptyFailureNoInternetView(
+      { required this.image,
+      required this.title,
+      required this.description,});
+
+   final String title, description, image;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 16, right: 16),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Lottie.asset(
+                image,
+                height: 250,
+                width: 250,
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "You are not connected to the internet. Make sure Wi-Fi is on, Airplane Mode is Off and try again.",
-                style: TextStyle(
-                  fontSize: 16,
-                ),
+              SizedBox(
+                height: 10,
               ),
-            )
-          ],
+              Text(
+                title,
+               style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Text(
+                description,
+                style: TextStyle(fontSize: 14),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+            ],
+          ),
         ),
       ),
     );

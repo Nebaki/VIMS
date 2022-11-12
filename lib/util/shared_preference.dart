@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class UserPreferences {
+
+  
   Future<bool> saveUser(
     User user,
   ) async {

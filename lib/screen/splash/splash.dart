@@ -15,16 +15,22 @@ class _SplashState extends State<Splash> {
   bool isLoggedIn = false;
   @override
   void initState() {
+    setValue().whenComplete(() {
+      Future.delayed(Duration(seconds: 3), () => Get.offAllNamed(finalEmail==null ?"/signin":"/homepage"));
+    });
     super.initState();
     setValue();
   }
 
- Future setValue() async {
+  String? finalEmail;
+  Future setValue() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final showHome = prefs.getBool('showHome') ?? false;
-      showHome?Future.delayed(Duration(seconds: 3),()=>Get.offAllNamed("/signin")) : Future.delayed(Duration(seconds: 3),()=>Get.offAllNamed("/onboard"));
-     
+      var obtainedemail = prefs.getString('email');
+      setState(() {
+        finalEmail = obtainedemail;
+      });
+      print(finalEmail);
     } catch (e) {
       print(e);
     }

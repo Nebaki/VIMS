@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/controller/registration.dart';
 import 'package:mob_app/provider/user_provider.dart';
 import '../../../componets/Custom_Icons.dart';
 import '../../../componets/Form_err.dart';
@@ -41,64 +42,22 @@ class _SignUpFormState extends State<SignUpForm> {
         errors.remove(error);
       });
   }
-
-  signUp(
-    String email,
-    String pass,
-    String fullname,
-    String phone,
-  ) async {
-    var url = Uri.parse("http://vims.afrimedtravel.com/api/auth/register");
-    Map body = {
-      "email": email,
-      "password": pass,
-      "name": fullname,
-      "phone": phone,
-      "role": "individual"
-    };
-    var jsonResponse;
-    print(body);
-    var res = await http.post(url, body: body);
-    if (res.statusCode == 200) {
-      var data = jsonDecode(res.body.toString());
-      print('Signup successfully');
-      Get.offAllNamed("/signin");
-    } else {
-      Get.snackbar(
-        "unsuccessfull signup",
-        ".",
-        icon: const CustomSurffixIcon(
-          svgIcon: "assets/icons/Error.svg",
-          color: Colors.red,
-        ),
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      print(res.statusCode);
-    }
-  }
-
-  bool _isloading = false;
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passlController = TextEditingController();
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController roleController = TextEditingController();
+  RegistrationController registrationController =
+      Get.put(RegistrationController());
 
   var items = [
-    'receptionist',
     'company',
     'individual',
-    'supervisor',
-    'team_leader',
-    'inspector'
   ];
   var loading = Row(
     mainAxisAlignment: MainAxisAlignment.center,
-    children: <Widget>[
+    children: const <Widget>[
       CircularProgressIndicator(),
       Text(" Registering ... Please wait")
     ],
   );
+
+  late String selectedRole;
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -115,23 +74,22 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 10),
           buildConformPassFormField(),
           const SizedBox(height: 10),
-          // builRoleField(),
+          builRoleField(),
           const SizedBox(height: 10),
           FormError(errors: errors),
           const SizedBox(height: 20),
           DefaultButton(
-                  text: "Continue",
-                  press: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      KeyboardUtil.hideKeyboard(context);
-                          signUp(emailController.text, passlController.text,
-                              fullNameController.text, phoneController.text);
-                        } 
-                  },
-                  onPressed: () {
-                    Get.toNamed("/homepage");
-                  }),
+              text: "Continue",
+              press: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  KeyboardUtil.hideKeyboard(context);
+                  registrationController.register();
+                }
+              },
+              onPressed: () {
+                Get.toNamed("/homepage");
+              }),
         ],
       ),
     );
@@ -154,7 +112,7 @@ class _SignUpFormState extends State<SignUpForm> {
           }
           return null;
         },
-        controller: phoneController,
+        controller: registrationController.phoneController,
         decoration: InputDecoration(
             labelText: "Phone number",
             hintText: "Enter your Phone number",
@@ -186,7 +144,7 @@ class _SignUpFormState extends State<SignUpForm> {
         }
         return null;
       },
-      controller: fullNameController,
+      controller: registrationController.fullNameController,
       decoration: InputDecoration(
           labelText: "Full Name",
           hintText: "Enter your full name",
@@ -202,15 +160,35 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-  DropdownButton builRoleField() {
-    return DropdownButton(
-      items: items.map((String items) {
-        return DropdownMenuItem(
-          child: Text(items),
-          value: items,
-        );
-      }).toList(),
-      onChanged: (value) {},
+  DropdownButtonFormField builRoleField() {
+    return DropdownButtonFormField(
+      decoration: InputDecoration(
+          border: inputDecorationTheme().border,
+          hintText: "Role",
+          enabledBorder: inputDecorationTheme().enabledBorder,
+          focusedBorder: inputDecorationTheme().focusedBorder,
+          contentPadding: inputDecorationTheme().contentPadding,
+          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
+      // hint: const Text("Role"),
+      icon: const Padding(
+        padding: EdgeInsets.only(left: 48.0),
+        child: Icon(Icons.keyboard_arrow_down),
+      ),
+      iconSize: 24,
+      isDense: true,
+      items: items
+          .map((String items) => DropdownMenuItem(
+                child: Text(items),
+                value: items,
+              ))
+          .toList(),
+      onChanged: (value) {
+        if (items.contains(value)) {
+          setState(() {
+            registrationController.role = value;
+          });
+        }
+      },
     );
   }
 
@@ -273,7 +251,7 @@ class _SignUpFormState extends State<SignUpForm> {
         }
         return null;
       },
-      controller: passlController,
+      controller: registrationController.passController,
       decoration: InputDecoration(
           labelText: "Password",
           hintText: "Enter your password",
@@ -311,7 +289,7 @@ class _SignUpFormState extends State<SignUpForm> {
         }
         return null;
       },
-      controller: emailController,
+      controller: registrationController.emailController,
       decoration: InputDecoration(
           labelText: "Email",
           hintText: "Enter your email",

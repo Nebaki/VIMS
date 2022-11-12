@@ -7,9 +7,18 @@ import 'package:provider/provider.dart';
 import '../../provider/connectivity_provider.dart';
 import '../drawer/drawer.dart';
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  void initState() {
+    super.initState();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
+  }
   @override
   Widget build(BuildContext context) {
     return Consumer<ConnectivityProvider>(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/screen/sign_in/Signin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'profile_menu.dart';
 import 'profile_pic.dart';
@@ -14,6 +15,7 @@ class Body extends StatefulWidget {
 
 class _Body extends State<Body> {
   late Future profile;
+  final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -39,7 +41,9 @@ class _Body extends State<Body> {
           ProfileMenu(
             text: "Log Out",
             icon: "assets/icons/Log out.svg",
-            press: () {
+            press: () async {
+              final SharedPreferences Prefs = await prefs;
+              Prefs.clear();
               Get.offAllNamed("/signin");
             },
           ),
