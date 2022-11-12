@@ -44,11 +44,17 @@ dependencies:
   connectivity: ^3.0.3
   lottie: ^2.0.0
   internet_connection_checker: ^0.0.1+2
+  flutter_launcher_icons: ^0.10.0
   
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/sp1.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

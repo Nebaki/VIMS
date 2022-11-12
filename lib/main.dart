@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create:(context) => UserProvider(),),
         ChangeNotifierProvider(
           create: (context) => ConnectivityProvider(),
-          // ignore: prefer_const_constructors
           child: Signin(),
         ),
         ChangeNotifierProvider(
@@ -35,10 +34,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => ConnectivityProvider(),
           child: const Homepage(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ConnectivityProvider(),
-          child: const Signin(),
         ),
       ],
       child:GetMaterialApp(
