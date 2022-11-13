@@ -1,33 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:mob_app/screen/Forgot_pass/ForgotPass.dart';
-import 'package:mob_app/screen/Home/hompage.dart';
-import 'package:mob_app/screen/Sign%20in/Signin.dart';
-import 'package:mob_app/screen/Sign%20up/Signup.dart';
-import 'package:mob_app/screen/otp/otp.dart';
-import 'package:mob_app/screen/profile/components/profile_edit.dart';
-import 'package:mob_app/screen/profile/profile_screen.dart';
+import 'package:get/get.dart';
+import 'package:mob_app/provider/user_provider.dart';
+import 'package:mob_app/screen/home/hompage.dart';
+import 'package:mob_app/screen/sign_in/signin.dart';
+import 'package:mob_app/screen/sign_up/Signup.dart';
 import 'package:mob_app/util/themes.dart';
+import 'package:provider/provider.dart';
+import 'provider/connectivity_provider.dart';
+import 'routes.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create:(context) => UserProvider(),),
+        ChangeNotifierProvider(
+          create: (context) => ConnectivityProvider(),
+          child: Signin(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ConnectivityProvider(),
+          child: const SignUp(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ConnectivityProvider(),
+          child: const Homepage(),
+        ),
+      ],
+      child:GetMaterialApp(
       theme: theme(),
-      routes: {
-        '/':(context) => Signin(),
-        "/signup":(context) => SignUp(),
-        "/homepage":(context) => Homepage(),
-        "/forgot_pass":(context) => ForgotPass(),
-        "/otp":(context) => OtpScreen(),
-        "/profile":(context) => ProfileScreen(),
-        "/profile_edit":(context) => ProfileEdit()
-      },
+      getPages:AppPages.routes
+    ) ,
     );
+
+    
   }
 }

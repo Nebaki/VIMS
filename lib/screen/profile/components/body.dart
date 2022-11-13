@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mob_app/screen/sign_in/Signin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'profile_menu.dart';
 import 'profile_pic.dart';
@@ -11,48 +14,38 @@ class Body extends StatefulWidget {
 }
 
 class _Body extends State<Body> {
- 
   late Future profile;
+  final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   @override
- 
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         children: [
-          ProfilePic(),
-          SizedBox(height: 20),
+          const ProfilePic(),
+          const SizedBox(height: 20),
           ProfileMenu(
-            text: "My Account",
-            icon: "assets/icons/User Icon.svg",
-            press: () => Navigator.pushNamed(context, "/profile_edit")
-          ),
+              text: "My Account",
+              icon: "assets/icons/User Icon.svg",
+              press: () => Get.toNamed("/profile_edit")),
           ProfileMenu(
             text: "FeedBack",
             icon: "assets/icons/Bell.svg",
-            press: () {
-              
-            },
+            press: () {},
           ),
-          // ProfileMenu(
-          //   text: "",
-          //   icon: "assets/icons/Settings.svg",
-          //   press: () {},
-          // ),
           ProfileMenu(
             text: "About",
             icon: "assets/icons/Question mark.svg",
-            press: () {
-              
-            },
+            press: () {},
           ),
-          GestureDetector(
-            onTap: () => Navigator.pushNamedAndRemoveUntil(context, "/", (route) => false),
-            child: ProfileMenu(
-              text: "Log Out",
-              icon: "assets/icons/Log out.svg",
-              
-            ),
+          ProfileMenu(
+            text: "Log Out",
+            icon: "assets/icons/Log out.svg",
+            press: () async {
+              final SharedPreferences Prefs = await prefs;
+              Prefs.clear();
+              Get.offAllNamed("/signin");
+            },
           ),
         ],
       ),
