@@ -51,7 +51,7 @@ class _SigninState extends State<Signin> {
                             ),
                           ),
                           const Text(
-                            "Sign in with your email and password",
+                            "sign in with your phone and password",
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),

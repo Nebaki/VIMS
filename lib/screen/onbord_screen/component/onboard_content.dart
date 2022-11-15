@@ -15,7 +15,7 @@ class onboardContent extends StatelessWidget {
       children: <Widget>[
         const Spacer(),
         const Text(
-          "VMMS",
+          "VIMS",
           style: TextStyle(
             fontSize: 36,
             color: kPrimaryColor,

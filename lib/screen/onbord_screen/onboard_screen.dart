@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/screen/sign_in/signin.dart';
 import 'package:mob_app/util/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -17,7 +18,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int currentPage = 0;
   List<Map<String, String>> splashData = [
     {
-      "text": "Welcome to VMMS App, Let’s Start!",
+      "text": "Welcome to VIMS App, Let’s Start!",
       "image": "assets/images/sp1.png"
     },
     {
@@ -57,7 +58,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: () async {
                 final pref = await SharedPreferences.getInstance();
                 pref.setBool("showHome", true);
-                Get.offAllNamed("/signin");
+                Get.to(Signin(),
+                    transition: Transition.fadeIn,
+                    duration: Duration(seconds: 2));
               },
               child: const DefaultButton(
                 text: "Get started",

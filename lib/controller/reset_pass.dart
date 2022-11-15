@@ -4,31 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
 import '../util/api_endpoints.dart';
 
-class RegistrationController extends GetxController {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passController = TextEditingController();
-  TextEditingController fullNameController = TextEditingController();
+class ResetPassController extends GetxController {
   TextEditingController phoneController = TextEditingController();
-  String? role;
+  TextEditingController passController = TextEditingController();
 
-  final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
-
-  Future<void> register() async {
+  Future<void> Reset() async {
     try {
       var url =
-          Uri.parse(ApiEndPoints.baseurl + ApiEndPoints.authendpoints.register);
+          Uri.parse(ApiEndPoints.baseurl + ApiEndPoints.authendpoints.reset);
 
       Map body = {
-        "email": emailController.text,
-        "password": passController.text,
-        "name": fullNameController.text,
         "phone": phoneController.text,
-        "role": role
+        "password": passController.text,
       };
-      var jsonResponse;
       print(body);
       var res = await http.post(
         url,
@@ -37,15 +27,7 @@ class RegistrationController extends GetxController {
       var data = jsonDecode(res.body.toString());
       if (res.statusCode == 200) {
         if (data["status"] == true) {
-          var token = data["data"]["access_token"];
-          print(res.body);
-          print(token);
-          final SharedPreferences _prefs = await prefs;
-          await _prefs.setString("token", token);
-          emailController.clear();
           passController.clear();
-          phoneController.clear();
-          fullNameController.clear();
           Get.rawSnackbar(
               message: data["message"], duration: Duration(seconds: 2));
           Get.offAllNamed("/signin");

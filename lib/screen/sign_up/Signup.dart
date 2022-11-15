@@ -45,9 +45,9 @@ class _SignUpState extends State<SignUp> {
                           const SizedBox(
                             height: 20,
                           ),
-                          const Text("Register Account", style: headingStyle),
+                          const Text("Create Account", style: headingStyle),
                           const Text(
-                            "Complete your details ",
+                            "Fill your details",
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
@@ -62,10 +62,10 @@ class _SignUpState extends State<SignUp> {
             : NoInternet();
       }
       return Container(
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     });
   }
 }

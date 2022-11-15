@@ -6,4 +6,6 @@ class ApiEndPoints {
 class _AuthEndPoints {
   final String register = "auth/register";
   final String login = "auth/login";
+  final String check_user = "auth/check-user";
+  final String reset = "auth/reset-password";
 }

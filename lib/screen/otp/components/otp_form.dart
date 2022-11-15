@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../componets/defaualt_button.dart';
+import '../../../helper/keyboard.dart';
 import '../../../util/constants.dart';
 
 class OtpForm extends StatefulWidget {
@@ -39,9 +41,12 @@ class _OtpFormState extends State<OtpForm> {
     }
   }
 
+  final _formKey = GlobalKey<FormState>();
+  bool _isloading = false;
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           SizedBox(height: 15),
@@ -106,10 +111,48 @@ class _OtpFormState extends State<OtpForm> {
             ],
           ),
           SizedBox(height: 15),
-          DefaultButton(
-            text: "Continue",
-            press: () {},
-          )
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                backgroundColor: kPrimaryColor,
+              ),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  KeyboardUtil.hideKeyboard(context);
+                  setState(() {
+                    _isloading = true;
+                  });
+                  Get.toNamed("/forgot_pass");
+                }
+              },
+              child: _isloading
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("Loading"),
+                        SizedBox(
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      "Continue",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ),
         ],
       ),
     );

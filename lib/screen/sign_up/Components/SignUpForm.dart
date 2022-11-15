@@ -10,8 +10,6 @@ import '../../../models/user.dart';
 import '../../../util/constants.dart';
 import '../../../helper/keyboard.dart';
 import '../../../util/themes.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -27,21 +25,9 @@ class _SignUpFormState extends State<SignUpForm> {
   String? Phone;
   String? role;
   bool remember = false;
+  bool _isloading = false;
   final List<String?> errors = [];
 
-  void addError({String? error}) {
-    if (!errors.contains(error))
-      setState(() {
-        errors.add(error);
-      });
-  }
-
-  void removeError({String? error}) {
-    if (errors.contains(error))
-      setState(() {
-        errors.remove(error);
-      });
-  }
   RegistrationController registrationController =
       Get.put(RegistrationController());
 
@@ -57,7 +43,15 @@ class _SignUpFormState extends State<SignUpForm> {
     ],
   );
 
-  late String selectedRole;
+  String? selectedRole;
+  String? Role;
+  bool _passwordVisible = false;
+  bool _RepasswordVisible = false;
+  void initState() {
+    _passwordVisible = false;
+    _RepasswordVisible = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -66,9 +60,9 @@ class _SignUpFormState extends State<SignUpForm> {
         children: [
           buildFullNameFormField(),
           const SizedBox(height: 10),
-          buildEmailFormField(),
-          const SizedBox(height: 10),
           buildPhoneNumberFormField(),
+          const SizedBox(height: 10),
+          buildEmailFormField(),
           const SizedBox(height: 10),
           buildPasswordFormField(),
           const SizedBox(height: 10),
@@ -76,20 +70,48 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 10),
           builRoleField(),
           const SizedBox(height: 10),
-          FormError(errors: errors),
-          const SizedBox(height: 20),
-          DefaultButton(
-              text: "Continue",
-              press: () {
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                backgroundColor: kPrimaryColor,
+              ),
+              onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
                   KeyboardUtil.hideKeyboard(context);
+                  setState(() {
+                    _isloading = true;
+                  });
                   registrationController.register();
                 }
               },
-              onPressed: () {
-                Get.toNamed("/homepage");
-              }),
+              child: _isloading
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("Loading"),
+                        SizedBox(
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      "Continue",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ),
         ],
       ),
     );
@@ -99,23 +121,24 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
         keyboardType: TextInputType.phone,
         onSaved: (newValue) => Phone = newValue,
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            removeError(error: kPhoneNumberNullError);
-          }
-          return null;
-        },
         validator: (value) {
           if (value!.isEmpty) {
-            addError(error: kPhoneNumberNullError);
-            return "";
+            KeyboardUtil.hideKeyboard(context);
+            return kPhoneNumberNullError;
+          } else if (value.length < 10) {
+            KeyboardUtil.hideKeyboard(context);
+            return kShortphoneError;
+          } else if (value.length > 10) {
+            KeyboardUtil.hideKeyboard(context);
+            return kLongphoneError;
           }
+          KeyboardUtil.hideKeyboard(context);
           return null;
         },
         controller: registrationController.phoneController,
         decoration: InputDecoration(
-            labelText: "Phone number",
-            hintText: "Enter your Phone number",
+            labelText: "phone number",
+            hintText: "0911111111",
             suffixIcon: const CustomSurffixIcon(
               svgIcon: "assets/icons/Phone.svg",
               color: kPrimaryColor,
@@ -131,16 +154,13 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildFullNameFormField() {
     return TextFormField(
       onSaved: (newValue) => fullName = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kNamelNullError);
-        }
-        return null;
-      },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kNamelNullError);
-          return "";
+          return kNamelNullError;
+        } else if (value.length < 3) {
+          return kNamelShortError;
+        } else if (value.length > 50) {
+          return kNamelLognError;
         }
         return null;
       },
@@ -160,66 +180,124 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-  DropdownButtonFormField builRoleField() {
-    return DropdownButtonFormField(
-      decoration: InputDecoration(
-          border: inputDecorationTheme().border,
-          hintText: "Role",
-          enabledBorder: inputDecorationTheme().enabledBorder,
-          focusedBorder: inputDecorationTheme().focusedBorder,
-          contentPadding: inputDecorationTheme().contentPadding,
-          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
-      // hint: const Text("Role"),
-      icon: const Padding(
-        padding: EdgeInsets.only(left: 48.0),
-        child: Icon(Icons.keyboard_arrow_down),
-      ),
-      iconSize: 24,
-      isDense: true,
-      items: items
-          .map((String items) => DropdownMenuItem(
-                child: Text(items),
-                value: items,
-              ))
-          .toList(),
-      onChanged: (value) {
-        if (items.contains(value)) {
-          setState(() {
-            registrationController.role = value;
-          });
-        }
-      },
+  builRoleField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left:40.0),
+          child: Text(
+            "what is your role?",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        Padding(
+           padding: const EdgeInsets.only(left:30.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                  child: Row(
+                children: [
+                  Radio(
+                      value: "company",
+                      groupValue: Role,
+                      onChanged: (value) {
+                        setState(() {
+                          Role = value.toString();
+                          registrationController.role = Role;
+                        });
+                      }),
+                  Expanded(
+                    child: Text('company'),
+                  ),
+                  Radio(
+                      value: "individual",
+                      groupValue: Role,
+                      onChanged: (value) {
+                        setState(() {
+                          Role = value.toString();
+                          registrationController.role = Role;
+                        });
+                      })
+                ],
+              )),
+              Expanded(
+                child: Text('individual'),
+              ),
+            ],
+          ),
+        )
+      ],
     );
+
+    // DropdownButtonFormField(
+    //   decoration: InputDecoration(
+    //       border: inputDecorationTheme().border,
+    //       hintText: "Role",
+    //       enabledBorder: inputDecorationTheme().enabledBorder,
+    //       focusedBorder: inputDecorationTheme().focusedBorder,
+    //       contentPadding: inputDecorationTheme().contentPadding,
+    //       floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
+    //   // hint: const Text("Role"),
+    //   icon: const Padding(
+    //     padding: EdgeInsets.only(left: 48.0),
+    //     child: Icon(Icons.keyboard_arrow_down),
+    //   ),
+    //   iconSize: 24,
+    //   isDense: true,
+    //   items: items
+    //       .map((String items) => DropdownMenuItem(
+    //             child: Text(items),
+    //             value: items,
+    //           ))
+    //       .toList(),
+    //   onChanged: (value) {
+    //     if (items.contains(value)) {
+    //       setState(() {
+    //         registrationController.role = value;
+    //       });
+    //     }
+    //   },
+    // );
   }
 
   TextFormField buildConformPassFormField() {
     return TextFormField(
-      obscureText: true,
+      obscureText: !_RepasswordVisible,
       onSaved: (newValue) => conform_password = newValue,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.isNotEmpty && password == conform_password) {
-          removeError(error: kMatchPassError);
-        }
         conform_password = value;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
+          KeyboardUtil.hideKeyboard(context);
+          return kPassNullError;
+        } else if (value.length < 4) {
+          KeyboardUtil.hideKeyboard(context);
+          return kShortPassError;
+        } else if (value.length >= 25) {
+          KeyboardUtil.hideKeyboard(context);
+          return kLongPassError;
+        } else if (value.isNotEmpty) {
+          KeyboardUtil.hideKeyboard(context);
         } else if ((password != value)) {
-          addError(error: kMatchPassError);
-          return "";
+          return kMatchPassError;
         }
         return null;
       },
       decoration: InputDecoration(
           labelText: "Confirm Password",
           hintText: "Re-enter your password",
-          suffixIcon: const CustomSurffixIcon(
-            svgIcon: "assets/icons/Lock.svg",
-            color: kPrimaryColor,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: () {
+              setState(() {
+                _RepasswordVisible = !_RepasswordVisible;
+              });
+            },
           ),
           border: inputDecorationTheme().border,
           enabledBorder: inputDecorationTheme().enabledBorder,
@@ -231,39 +309,44 @@ class _SignUpFormState extends State<SignUpForm> {
 
   TextFormField buildPasswordFormField() {
     return TextFormField(
-      obscureText: true,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: !_passwordVisible,
       onSaved: (newValue) => password = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        }
-        password = value;
-      },
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if (value.length < 8) {
-          addError(error: kShortPassError);
-          return "";
+          KeyboardUtil.hideKeyboard(context);
+          return kPassNullError;
+        } else if (value.length < 4) {
+          KeyboardUtil.hideKeyboard(context);
+          return kShortPassError;
+        } else if (value.length >= 25) {
+          KeyboardUtil.hideKeyboard(context);
+          return kLongPassError;
+        } else if (value.isNotEmpty) {
+          KeyboardUtil.hideKeyboard(context);
         }
         return null;
       },
       controller: registrationController.passController,
       decoration: InputDecoration(
-          labelText: "Password",
-          hintText: "Enter your password",
-          suffixIcon: const CustomSurffixIcon(
-            svgIcon: "assets/icons/Lock.svg",
-            color: kPrimaryColor,
+        labelText: "password",
+        hintText: "Enter your password",
+        suffixIcon: IconButton(
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
           ),
-          border: inputDecorationTheme().border,
-          enabledBorder: inputDecorationTheme().enabledBorder,
-          focusedBorder: inputDecorationTheme().focusedBorder,
-          contentPadding: inputDecorationTheme().contentPadding,
-          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
+          onPressed: () {
+            setState(() {
+              _passwordVisible = !_passwordVisible;
+            });
+          },
+        ),
+        border: inputDecorationTheme().border,
+        enabledBorder: inputDecorationTheme().enabledBorder,
+        focusedBorder: inputDecorationTheme().focusedBorder,
+        contentPadding: inputDecorationTheme().contentPadding,
+        floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior,
+      ),
     );
   }
 
@@ -271,28 +354,10 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
-        return null;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kEmailNullError);
-          return "";
-        } else if (!emailValidatorRegExp.hasMatch(value)) {
-          addError(error: kInvalidEmailError);
-          return "";
-        }
-        return null;
-      },
       controller: registrationController.emailController,
       decoration: InputDecoration(
           labelText: "Email",
-          hintText: "Enter your email",
+          hintText: "Neba@gmail.com",
           suffixIcon: const CustomSurffixIcon(
             svgIcon: "assets/icons/Mail.svg",
             color: kPrimaryColor,
