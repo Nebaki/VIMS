@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/constants.dart';
 import '../../provider/connectivity_provider.dart';
-import '../../util/constants.dart';
 import 'Components/SignUpForm.dart';
 
 class SignUp extends StatefulWidget {

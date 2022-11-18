@@ -8,4 +8,7 @@ class _AuthEndPoints {
   final String login = "auth/login";
   final String check_user = "auth/check-user";
   final String reset = "auth/reset-password";
+  final String change_profile = "auth/change-profile";
+  final String change_password = "auth/change-password";
+  final String getProfile = "auth/get-profile";
 }

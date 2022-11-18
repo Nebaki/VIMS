@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../util/constants.dart';
+import '../../constants/constants.dart';
 
 class NoAccountText extends StatelessWidget {
   const NoAccountText({super.key});

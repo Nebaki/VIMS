@@ -51,7 +51,7 @@ class _SigninState extends State<Signin> {
                             ),
                           ),
                           const Text(
-                            "sign in with your phone and password",
+                            "Sign in with your phone and password",
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
@@ -66,10 +66,10 @@ class _SigninState extends State<Signin> {
             : NoInternet();
       }
       return Container(
-          child: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     });
   }
 }

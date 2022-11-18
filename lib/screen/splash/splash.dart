@@ -1,7 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/controller/user_detail.dart';
+import 'package:mob_app/models/api_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Splash extends StatefulWidget {
@@ -19,32 +22,59 @@ class _SplashState extends State<Splash> {
     super.initState();
   }
 
-  String? finalEmail;
+  String? finalToken;
   Future setValue() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final showHome = prefs.getBool('showHome') ?? false;
-      showHome
-          ? Future.delayed(
-              Duration(seconds: 3),
-              () =>
-                  Get.offAllNamed(finalEmail == null ? "/signin" : "/homepage"))
-          : Future.delayed(
-              Duration(seconds: 3), () => Get.offAllNamed("/onboard"));
+    final prefs = await SharedPreferences.getInstance();
+    final showHome = prefs.getBool('showHome') ?? false;
+    // String _token = await get_token();
+    // try {
+    //   if (showHome == true) {
+    //     if (_token == '') {
+    //       Get.offNamed("/signin");
+    //     } else {
+    //       ApiResponse res = (await get_token()) as ApiResponse;
+    //       if (res.error == null) {
+    //         Get.offNamed("/signin");
+    //       } else if (res.error == "Unauthorized") {
+    //         Get.offNamed("/signin");
+    //       } else {
+    //         print(res.error);
+    //       }
+    //     }
+    //   } else {
+    //     Get.offAllNamed("/onboard");
+    //   }
+    // } catch (e) {
+    //   print(e.toString());
+    // }
 
-      var obtainedemail = prefs.getString('email');
-      setState(() {
-        finalEmail = obtainedemail;
-      });
-      print(finalEmail);
-    } catch (e) {
-      print(e);
-    }
+      try {
+        showHome
+            ? Get.offAllNamed(finalToken == null ? "/signin" : "/homepage")
+            : Get.offAllNamed("/onboard");
+
+        setState(() {
+          finalToken = prefs.getString('token');
+        });
+        print(finalToken);
+      } catch (e) {
+        print(e);
+      }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+
+          statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+          statusBarBrightness: Brightness.light, // For iOS (dark icons)
+        ),
+      ),
       body: Center(
         child: SizedBox(
           child: Image.asset(

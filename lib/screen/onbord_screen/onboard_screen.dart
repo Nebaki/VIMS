@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/screen/sign_in/signin.dart';
-import 'package:mob_app/util/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../Componets/defaualt_button.dart';
+import '../../constants/constants.dart';
 import './component/onboard_content.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -58,9 +58,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: () async {
                 final pref = await SharedPreferences.getInstance();
                 pref.setBool("showHome", true);
-                Get.to(Signin(),
-                    transition: Transition.fadeIn,
-                    duration: Duration(seconds: 2));
+                Get.offAllNamed(
+                  "/signin",
+                );
               },
               child: const DefaultButton(
                 text: "Get started",

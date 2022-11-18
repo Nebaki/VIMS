@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/login.dart';
+import 'package:mob_app/controller/auth/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';
-import '../../../util/constants.dart';
+import '../../../constants/constants.dart';
 import '../../../helper/keyboard.dart';
-import '../../check_user/check_user.dart';
 
 class SignForm extends StatefulWidget {
   @override
@@ -23,14 +22,18 @@ class _SignFormState extends State<SignForm> {
   final List<String?> errors = [];
 
   void initState() {
-    _loadUserEmailPassword();
+    _loadUserphone();
     _passwordVisible = false;
     super.initState();
   }
 
-  bool _isloading = false;
+  AuthController loginController = Get.put(AuthController());
 
-  LoginController loginController = Get.put(LoginController());
+  void signInUser() {
+    loginController.signInUser(
+      context: context,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +64,9 @@ class _SignFormState extends State<SignForm> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  Get.to(() => CheckUser(),
-                      transition: Transition.downToUp,
-                      duration: Duration(seconds: 2));
+                  Get.toNamed(
+                    "/check_user",
+                  );
                 },
                 child: const Text(
                   "Forgot Password",
@@ -77,45 +80,45 @@ class _SignFormState extends State<SignForm> {
             width: double.infinity,
             height: 56,
             child: TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                backgroundColor: kPrimaryColor,
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  KeyboardUtil.hideKeyboard(context);
-                  setState(() {
-                    loginController.phoneController = phoneController;
-                    loginController.passController = passController;
-                    _isloading = true;
-                  });
-                  loginController.login();
-                }
-              },
-              child: _isloading
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text("Loading"),
-                        SizedBox(
-                          height: 30,
-                          child: CircularProgressIndicator(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: kPrimaryColor,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    KeyboardUtil.hideKeyboard(context);
+                    setState(() {
+                      loginController.LoginphoneController = phoneController;
+                      loginController.LoginpassController = passController;
+                    });
+                    loginController.signInUser(context: context);
+                  }
+                },
+                child: Obx(
+                  () => loginController.isLoading.value
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text("Loading"),
+                            SizedBox(
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          "Continue",
+                          style: const TextStyle(
+                            fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
-                      ],
-                    )
-                  : Text(
-                      "Continue",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
+                )),
           ),
         ],
       ),
@@ -136,23 +139,22 @@ class _SignFormState extends State<SignForm> {
     });
   }
 
-  void _loadUserEmailPassword() async {
+  void _loadUserphone() async {
     print("Load phone");
     try {
       SharedPreferences refs = await SharedPreferences.getInstance();
       var phone = refs.getString("phone") ?? "";
-      var _password = refs.getString("password") ?? "";
       var _remeberMe = refs.getBool("remember_me") ?? false;
 
       print(_remeberMe);
       print(phone);
-      print(_password);
       if (_remeberMe) {
         setState(() {
           remember = true;
         });
         phoneController.text = phone;
       }
+      print(phoneController.text);
     } catch (e) {
       print(e);
     }
@@ -183,7 +185,7 @@ class _SignFormState extends State<SignForm> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        labelText: "password",
+        labelText: "Password",
         hintText: "Enter your password",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: IconButton(
@@ -215,7 +217,7 @@ class _SignFormState extends State<SignForm> {
         } else if (value.length < 10) {
           KeyboardUtil.hideKeyboard(context);
           return kShortphoneError;
-        } else if (value.length > 10) {
+        } else if (value.length > 13) {
           KeyboardUtil.hideKeyboard(context);
           return kLongphoneError;
         }
@@ -228,7 +230,7 @@ class _SignFormState extends State<SignForm> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        labelText: "phone",
+        labelText: "Phone",
         hintText: "0911111111",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: const CustomSurffixIcon(

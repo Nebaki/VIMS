@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/controller/check_user.dart';
-import 'package:mob_app/util/constants.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/constants.dart';
 import '../../provider/connectivity_provider.dart';
 import 'components/otp_form.dart';
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../util/constants.dart';
+
+import '../../../constants/constants.dart';
 
 class SplashContent extends StatelessWidget {
   const SplashContent({

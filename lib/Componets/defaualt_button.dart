@@ -1,13 +1,13 @@
-
 import 'package:flutter/material.dart';
 
-import '../util/constants.dart';
+import '../../constants/constants.dart';
 
 class DefaultButton extends StatelessWidget {
   const DefaultButton({
     Key? key,
     this.text,
-    this.press, Null Function()? onPressed,
+    this.press,
+    Null Function()? onPressed,
   }) : super(key: key);
   final String? text;
   final Function? press;
@@ -19,7 +19,8 @@ class DefaultButton extends StatelessWidget {
       height: 56,
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: Colors.white, shape:
+          foregroundColor: Colors.white,
+          shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           backgroundColor: kPrimaryColor,
         ),

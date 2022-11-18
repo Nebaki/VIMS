@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "57857411747",
-    "project_id": "app23-3f881",
-    "storage_bucket": "app23-3f881.appspot.com"
+    "project_number": "815863300103",
+    "project_id": "vims-af93b",
+    "storage_bucket": "vims-af93b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:57857411747:android:367ec78cc0fab82c0ecd16",
+        "mobilesdk_app_id": "1:815863300103:android:1c19a9a6e5b9d5b6b5eaa2",
         "android_client_info": {
-          "package_name": "com.example.mob_app"
+          "package_name": "com.android.application"
         }
       },
       "oauth_client": [
         {
-          "client_id": "57857411747-0ah2nqjksqpq50n85rbc2o604dtooq59.apps.googleusercontent.com",
+          "client_id": "815863300103-81fd8gjv24ueerdm9hce7hqvkr9fd45j.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDhZPomyuoQeFZvW8PCGG9lwkE5bgonjN4"
+          "current_key": "AIzaSyC9nYDPcon6D_TGNDL-qpyBHoWOtilOz5o"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "57857411747-0ah2nqjksqpq50n85rbc2o604dtooq59.apps.googleusercontent.com",
+              "client_id": "815863300103-81fd8gjv24ueerdm9hce7hqvkr9fd45j.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

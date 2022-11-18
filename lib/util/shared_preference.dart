@@ -34,30 +34,9 @@ class UserPreferences {
     );
   }
 
-  Future<bool> saveToken(
-    Data ddata,
-  ) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('token', ddata.accessToken);
-    return prefs.commit();
-  }
+ 
 
-  Future<String> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String Token = prefs.getString("token") ?? "";
-    return Token;
-  }
-
-  void removeUser() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    prefs.remove('userId');
-    prefs.remove('name');
-    prefs.remove('email');
-    prefs.remove('phone');
-    prefs.remove('type');
-    prefs.remove('token');
-  }
+ 
 
   
 }

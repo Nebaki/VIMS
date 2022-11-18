@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/Componets/Custom_Icons.dart';
-import 'package:mob_app/controller/login.dart';
+import 'package:mob_app/screen/otp/otp.dart';
 
 import '../../../Componets/Form_err.dart';
-import '../../../Componets/defaualt_button.dart';
 import '../../../Componets/no_account_text.dart';
+import '../../../constants/constants.dart';
 import '../../../controller/check_user.dart';
+import '../../../controller/otp.dart';
 import '../../../helper/keyboard.dart';
-import '../../../util/constants.dart';
 
 class CheckUserForm extends StatefulWidget {
   const CheckUserForm({super.key});
@@ -18,12 +18,15 @@ class CheckUserForm extends StatefulWidget {
 }
 
 class _CheckUserFormState extends State<CheckUserForm> {
+  OtpController otp = Get.find();
   final List<String?> errors = [];
   bool _isloading = false;
 
   final formKey = GlobalKey<FormState>();
   String? phone;
   checkuserController CheckUserController = Get.put(checkuserController());
+  final _phone = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -40,14 +43,14 @@ class _CheckUserFormState extends State<CheckUserForm> {
               } else if (value.length < 10) {
                 KeyboardUtil.hideKeyboard(context);
                 return kShortphoneError;
-              } else if (value.length > 10) {
+              } else if (value.length > 15) {
                 KeyboardUtil.hideKeyboard(context);
                 return kLongphoneError;
               }
               KeyboardUtil.hideKeyboard(context);
               return null;
             },
-            controller: CheckUserController.phoneController,
+            controller: _phone,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
@@ -82,9 +85,12 @@ class _CheckUserFormState extends State<CheckUserForm> {
                   KeyboardUtil.hideKeyboard(context);
                   setState(() {
                     _isloading = true;
+                    CheckUserController.phoneController = _phone;
                   });
                   print("object");
-                  CheckUserController.check_user();
+                  otp.verifyPhone(_phone.text);
+                  Get.to(() => OtpScreen());
+                  // CheckUserController.check_user();
                   print("ob");
                 }
               },

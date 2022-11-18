@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/registration.dart';
-import 'package:mob_app/provider/user_provider.dart';
+import 'package:mob_app/constants/constants.dart';
+import 'package:mob_app/controller/auth/auth.dart';
 import '../../../componets/Custom_Icons.dart';
-import '../../../componets/Form_err.dart';
-import '../../../componets/defaualt_button.dart';
-import '../../../models/user.dart';
-import '../../../util/constants.dart';
 import '../../../helper/keyboard.dart';
 import '../../../util/themes.dart';
 
@@ -28,8 +23,7 @@ class _SignUpFormState extends State<SignUpForm> {
   bool _isloading = false;
   final List<String?> errors = [];
 
-  RegistrationController registrationController =
-      Get.put(RegistrationController());
+  AuthController registrationController = Get.put(AuthController());
 
   var items = [
     'company',
@@ -50,6 +44,13 @@ class _SignUpFormState extends State<SignUpForm> {
   void initState() {
     _passwordVisible = false;
     _RepasswordVisible = false;
+    super.initState();
+  }
+
+  void signUpUser() {
+    registrationController.signUpUser(
+      context: context,
+    );
   }
 
   @override
@@ -87,11 +88,10 @@ class _SignUpFormState extends State<SignUpForm> {
                   setState(() {
                     _isloading = true;
                   });
-                  registrationController.register();
+                  registrationController.signUpUser(context: context);
                 }
               },
-              child: _isloading
-                  ? Row(
+              child: Obx(() =>registrationController.isLoading.value ? Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Text("Loading"),
@@ -109,7 +109,8 @@ class _SignUpFormState extends State<SignUpForm> {
                         fontSize: 18,
                         color: Colors.white,
                       ),
-                    ),
+                    ), )
+                 
             ),
           ),
         ],
@@ -128,7 +129,7 @@ class _SignUpFormState extends State<SignUpForm> {
           } else if (value.length < 10) {
             KeyboardUtil.hideKeyboard(context);
             return kShortphoneError;
-          } else if (value.length > 10) {
+          } else if (value.length > 13) {
             KeyboardUtil.hideKeyboard(context);
             return kLongphoneError;
           }
@@ -185,14 +186,14 @@ class _SignUpFormState extends State<SignUpForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left:40.0),
+          padding: const EdgeInsets.only(left: 40.0),
           child: Text(
             "what is your role?",
             style: TextStyle(fontSize: 20),
           ),
         ),
         Padding(
-           padding: const EdgeInsets.only(left:30.0),
+          padding: const EdgeInsets.only(left: 30.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -230,36 +231,6 @@ class _SignUpFormState extends State<SignUpForm> {
         )
       ],
     );
-
-    // DropdownButtonFormField(
-    //   decoration: InputDecoration(
-    //       border: inputDecorationTheme().border,
-    //       hintText: "Role",
-    //       enabledBorder: inputDecorationTheme().enabledBorder,
-    //       focusedBorder: inputDecorationTheme().focusedBorder,
-    //       contentPadding: inputDecorationTheme().contentPadding,
-    //       floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
-    //   // hint: const Text("Role"),
-    //   icon: const Padding(
-    //     padding: EdgeInsets.only(left: 48.0),
-    //     child: Icon(Icons.keyboard_arrow_down),
-    //   ),
-    //   iconSize: 24,
-    //   isDense: true,
-    //   items: items
-    //       .map((String items) => DropdownMenuItem(
-    //             child: Text(items),
-    //             value: items,
-    //           ))
-    //       .toList(),
-    //   onChanged: (value) {
-    //     if (items.contains(value)) {
-    //       setState(() {
-    //         registrationController.role = value;
-    //       });
-    //     }
-    //   },
-    // );
   }
 
   TextFormField buildConformPassFormField() {

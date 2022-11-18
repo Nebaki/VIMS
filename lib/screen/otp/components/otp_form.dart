@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../../componets/defaualt_button.dart';
+import '../../../constants/constants.dart';
+import '../../../controller/otp.dart';
 import '../../../helper/keyboard.dart';
-import '../../../util/constants.dart';
 
 class OtpForm extends StatefulWidget {
   const OtpForm({
@@ -15,6 +14,7 @@ class OtpForm extends StatefulWidget {
 }
 
 class _OtpFormState extends State<OtpForm> {
+  OtpController otp = Get.find();
   FocusNode? pin2FocusNode;
   FocusNode? pin3FocusNode;
   FocusNode? pin4FocusNode;
@@ -43,6 +43,7 @@ class _OtpFormState extends State<OtpForm> {
 
   final _formKey = GlobalKey<FormState>();
   bool _isloading = false;
+  final _otp = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -50,66 +51,105 @@ class _OtpFormState extends State<OtpForm> {
       child: Column(
         children: [
           SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 60,
-                child: TextFormField(
-                  autofocus: true,
-                  obscureText: true,
-                  style: TextStyle(fontSize: 24),
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: otpInputDecoration,
-                  onChanged: (value) {
-                    nextField(value, pin2FocusNode);
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 60,
-                child: TextFormField(
-                  focusNode: pin2FocusNode,
-                  obscureText: true,
-                  style: TextStyle(fontSize: 24),
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: otpInputDecoration,
-                  onChanged: (value) => nextField(value, pin3FocusNode),
-                ),
-              ),
-              SizedBox(
-                width: 60,
-                child: TextFormField(
-                  focusNode: pin3FocusNode,
-                  obscureText: true,
-                  style: TextStyle(fontSize: 24),
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: otpInputDecoration,
-                  onChanged: (value) => nextField(value, pin4FocusNode),
-                ),
-              ),
-              SizedBox(
-                width: 60,
-                child: TextFormField(
-                  focusNode: pin4FocusNode,
-                  obscureText: true,
-                  style: TextStyle(fontSize: 24),
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  decoration: otpInputDecoration,
-                  onChanged: (value) {
-                    if (value.length == 1) {
-                      pin4FocusNode!.unfocus();
-                      // Then you need to check is the code is correct or not
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
+          TextField(
+            decoration: InputDecoration(label: Text("otp")),
+            controller: _otp,
+          )
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         autofocus: true,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) {
+          //           nextField(value, pin2FocusNode);
+          //         },
+          //       ),
+          //     ),
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         focusNode: pin2FocusNode,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) => nextField(value, pin3FocusNode),
+          //       ),
+          //     ),
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         focusNode: pin3FocusNode,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) => nextField(value, pin4FocusNode),
+          //       ),
+          //     ),
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         focusNode: pin4FocusNode,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) {
+          //           if (value.length == 1) {
+          //             pin4FocusNode!.unfocus();
+          //             // Then you need to check is the code is correct or not
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         focusNode: pin4FocusNode,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) {
+          //           if (value.length == 1) {
+          //             pin4FocusNode!.unfocus();
+          //             // Then you need to check is the code is correct or not
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //     SizedBox(
+          //       width: 40,
+          //       child: TextFormField(
+          //         focusNode: pin4FocusNode,
+          //         obscureText: true,
+          //         style: TextStyle(fontSize: 24),
+          //         keyboardType: TextInputType.number,
+          //         textAlign: TextAlign.center,
+          //         decoration: otpInputDecoration,
+          //         onChanged: (value) {
+          //           if (value.length == 1) {
+          //             pin4FocusNode!.unfocus();
+          //             // Then you need to check is the code is correct or not
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          ,
           SizedBox(height: 15),
           SizedBox(
             width: double.infinity,
@@ -128,7 +168,8 @@ class _OtpFormState extends State<OtpForm> {
                   setState(() {
                     _isloading = true;
                   });
-                  Get.toNamed("/forgot_pass");
+                  otp.verifyOtp(_otp.text);
+                  // Get.toNamed("/otp");
                 }
               },
               child: _isloading
