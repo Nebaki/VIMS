@@ -10,21 +10,21 @@ void httpErrorHandle({
   required BuildContext context,
   required VoidCallback onSucess,
 }) {
-  print(response.body);
   switch (response.statusCode) {
     case 200:
       onSucess();
       break;
     case 404:
-      print(response.toString());
-      print(response.body.toString());
       showSnackBar(context, "Server error");
       break;
     case 401:
-      showSnackBar(context, response.statusCode.toString());
+      showSnackBar(context, "Invalid phone\/password");
       break;
     case 400:
       showSnackBar(context, "Old Password is incorrect");
+      break;
+      case 422:
+      showSnackBar(context, "User already exist!");
       break;
     default:
       showSnackBar(context, response.statusCode.toString());

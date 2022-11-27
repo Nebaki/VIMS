@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:mob_app/screen/change_password/change_password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
@@ -41,11 +40,16 @@ class ChangeProfileController extends GetxController {
       httpErrorHandle(
           response: res,
           context: context,
-          onSucess: () {
-            // Get.offNamed("/profile");
+          onSucess: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            var data = jsonDecode(res.body.toString());
+            await prefs.setString('name', data['data']['name']);
+            await prefs.setString('email', data['data']['email']);
+            await prefs.setString('phone', data['data']['phone']);
+            Get.offNamed("/profile");
             showSnackBar(context, "profile is changed Successfully");
           });
-          isLoading.value = false;
+      isLoading.value = false;
     } catch (e) {
       print(e.toString());
     }

@@ -2,50 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/controller/reset_pass.dart';
 import 'package:mob_app/util/no_internet.dart';
-import 'package:provider/provider.dart';
 import '../../constants/constants.dart';
+import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../helper/keyboard.dart';
-import '../../provider/connectivity_provider.dart';
 import '../../util/themes.dart';
 
-class ForgotPass extends StatelessWidget {
-  const ForgotPass({super.key});
+class ForgotPass extends StatefulWidget {
+  ForgotPass({super.key});
 
   @override
+  State<ForgotPass> createState() => _ForgotPassState();
+}
+
+class _ForgotPassState extends State<ForgotPass> {
+  ResetPassController respass = Get.put(ResetPassController());
+
+  void signInUser() {
+    respass.Reset(
+      context: context,
+    );
+  }
+
+   ConnectionManagerController _controller =Get.put(ConnectionManagerController());
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          "Reset password",
-          textAlign: TextAlign.end,
-        ),
-      ),
-      body: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: const [
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Text(
-                    "Reset Password",
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  ForgotPassForm(),
-                ],
+    return Obx(() => _controller.connectionType.value == 1 ||
+            _controller.connectionType.value == 2
+        ? Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text(
+                "Reset password",
+                textAlign: TextAlign.end,
               ),
             ),
-          )),
-    );
+            body: SizedBox(
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: const [
+                        SizedBox(
+                          height: 50,
+                        ),
+                        Text(
+                          "Reset Password",
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        ForgotPassForm(),
+                      ],
+                    ),
+                  ),
+                )),
+          )
+        : NoInternet());
   }
 }
 
@@ -61,121 +77,98 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
   String? password;
   String? conform_password;
   bool _isloading = false;
-  final List<String?> errors = [];
 
   bool _passwordVisible = false;
   bool _RepasswordVisible = false;
-  void initState() {
-    super.initState();
-    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
-  }
 
   ResetPassController resetpass = Get.put(ResetPassController());
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
 
-    return Consumer<ConnectivityProvider>(
-        builder: (consumerContext, model, child) {
-      if (model.isOnline != null) {
-        return model.isOnline
-            ? Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    buildPasswordFormField(),
-                    const SizedBox(height: 30),
-                    buildConformPassFormField(),
-                    const SizedBox(height: 30),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          backgroundColor: kPrimaryColor,
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          buildPasswordFormField(),
+          const SizedBox(height: 30),
+          buildConformPassFormField(),
+          const SizedBox(height: 30),
+          const SizedBox(
+            height: 10,
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20)),
+                backgroundColor: kPrimaryColor,
+              ),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  KeyboardUtil.hideKeyboard(context);
+                  setState(() {
+                    _isloading = true;
+                  });
+                  resetpass.Reset(context: context);
+                }
+              },
+              child: _isloading
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text("Loading"),
+                        SizedBox(
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
                         ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            KeyboardUtil.hideKeyboard(context);
-                            setState(() {
-                              _isloading = true;
-                            });
-                            resetpass.Reset();
-                          }
-                        },
-                        child: _isloading
-                            ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text("Loading"),
-                                  SizedBox(
-                                    height: 30,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                "Continue",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
+                      ],
+                    )
+                  : Text(
+                      "Continue",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              )
-            : NoInternet();
-      }
-      return Container(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    });
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
   }
-
-  TextFormField buildPasswordFormField() {
+TextFormField buildPasswordFormField() {
+    
     return TextFormField(
       keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       obscureText: !_passwordVisible,
-      onSaved: (newValue) => password = newValue,
+      controller: resetpass.passController,
+      onSaved: (newValue) {
+        password = newValue!;
+      },
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
           return kPassNullError;
         } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
           return kShortPassError;
         } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
           return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
         }
+
         return null;
       },
-      controller: resetpass.passController,
+      maxLength: 25,
       decoration: InputDecoration(
-        border: inputDecorationTheme().border,
-        labelText: "password",
+        labelText: "Password",
         hintText: "Enter your password",
-        floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior,
-        enabledBorder: inputDecorationTheme().enabledBorder,
-        focusedBorder: inputDecorationTheme().focusedBorder,
-        contentPadding: inputDecorationTheme().contentPadding,
         suffixIcon: IconButton(
           icon: Icon(
             _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -186,6 +179,11 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             });
           },
         ),
+        border: inputDecorationTheme().border,
+        enabledBorder: inputDecorationTheme().enabledBorder,
+        focusedBorder: inputDecorationTheme().focusedBorder,
+        contentPadding: inputDecorationTheme().contentPadding,
+        floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior,
       ),
     );
   }
@@ -193,29 +191,20 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
   TextFormField buildConformPassFormField() {
     return TextFormField(
       obscureText: !_RepasswordVisible,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      maxLength: 25,
       onSaved: (newValue) => conform_password = newValue,
       onChanged: (value) {
         conform_password = value;
       },
       validator: (value) {
-        if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-          return kPassNullError;
-        } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
-          return kShortPassError;
-        } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
-          return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-        } else if ((password != value)) {
+        if (password != conform_password) {
           return kMatchPassError;
         }
         return null;
       },
       decoration: InputDecoration(
-          labelText: "Confirm Password",
+          labelText: "Confirm password",
           hintText: "Re-enter your password",
           suffixIcon: IconButton(
             icon: Icon(
@@ -234,4 +223,10 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
           floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
     );
   }
+
+
+
+
+
+
 }

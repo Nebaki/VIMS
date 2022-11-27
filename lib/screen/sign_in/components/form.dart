@@ -144,6 +144,7 @@ class _SignFormState extends State<SignForm> {
     try {
       SharedPreferences refs = await SharedPreferences.getInstance();
       var phone = refs.getString("phone") ?? "";
+      var pass = refs.getString("password") ?? "";
       var _remeberMe = refs.getBool("remember_me") ?? false;
 
       print(_remeberMe);
@@ -152,9 +153,20 @@ class _SignFormState extends State<SignForm> {
         setState(() {
           remember = true;
         });
-        phoneController.text = phone;
+        String replaced = "";
+        phone.startsWith('+251')
+            ? replaced = phone.replaceFirst('+251', "0")
+            : replaced = phone;
+
+        // LoginphoneController.text.startsWith('0')
+        // ? replacedPhone = LoginphoneController.text.replaceFirst('0', '+251')
+        // : replacedPhone = LoginphoneController.text;
+
+        phoneController.text = replaced;
+        passController.text = pass;
       }
       print(phoneController.text);
+      print(passController.text);
     } catch (e) {
       print(e);
     }
@@ -163,20 +175,16 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       obscureText: !_passwordVisible,
       onSaved: (newValue) => password = newValue,
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
           return kPassNullError;
         } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
           return kShortPassError;
         } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
           return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
         }
         return null;
       },
@@ -205,23 +213,22 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPhoneFormField() {
     return TextFormField(
       keyboardType: TextInputType.phone,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       onSaved: (newValue) => phone = newValue,
+      maxLength: 10,
       onChanged: (value) {
-        if (value.isNotEmpty) {}
-        return null;
+        if (value.isNotEmpty) {
+          return null;
+        }
       },
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
           return kPhoneNumberNullError;
         } else if (value.length < 10) {
-          KeyboardUtil.hideKeyboard(context);
           return kShortphoneError;
-        } else if (value.length > 13) {
-          KeyboardUtil.hideKeyboard(context);
+        } else if (value.length > 10) {
           return kLongphoneError;
         }
-        KeyboardUtil.hideKeyboard(context);
         return null;
       },
       controller: phoneController,
@@ -231,7 +238,7 @@ class _SignFormState extends State<SignForm> {
           borderRadius: BorderRadius.circular(10.0),
         ),
         labelText: "Phone",
-        hintText: "0911111111",
+        hintText: "Enter your phone number",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: const CustomSurffixIcon(
           svgIcon: "assets/icons/Phone.svg",

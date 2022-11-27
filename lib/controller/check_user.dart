@@ -2,13 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/screen/otp/otp.dart';
+import '../screen/otp/otp.dart';
 import '../util/api_endpoints.dart';
 import 'package:http/http.dart' as http;
+
+import 'otp.dart';
 
 class checkuserController extends GetxController {
   TextEditingController phoneController = TextEditingController();
   RxString controllerText = ''.obs;
+  var isLoading = false.obs;
+  String replacedPhone = "";
+  OtpController otp = Get.put(OtpController());
   @override
   void onInit() {
     super.onInit();
@@ -19,10 +24,15 @@ class checkuserController extends GetxController {
 
   Future<void> check_user() async {
     try {
+      isLoading.value = true;
+      Future.delayed(Duration(seconds: 7));
+      phoneController.text.startsWith('0')
+          ? replacedPhone = phoneController.text.replaceFirst('0', '+251')
+          : replacedPhone = phoneController.text;
       var url = Uri.parse(
               ApiEndPoints.baseurl + ApiEndPoints.authendpoints.check_user)
           .replace(queryParameters: {
-        'phone': phoneController.text,
+        'phone': replacedPhone,
       });
       var headers = {
         HttpHeaders.contentTypeHeader: 'application/json',
@@ -31,15 +41,17 @@ class checkuserController extends GetxController {
       var data = jsonDecode(response.body.toString());
       if (response.statusCode == 200) {
         if (data["status"] == true) {
-          Get.rawSnackbar(message:data["message"] ,duration: Duration(seconds: 2));
-          Get.toNamed("/forgot_pass");
+          print(replacedPhone);
+          otp.verifyPhone(replacedPhone);
         } else {
-          Get.rawSnackbar(message:data["message"] );
+          isLoading.value = false;
+          Get.rawSnackbar(message: data["message"]);
           // throw jsonDecode(response.body)["message"] ?? "unknown error occured";
         }
       } else {
-        Get.rawSnackbar(message:data["message"] );
-        
+        isLoading.value = false;
+        Get.rawSnackbar(message: data["message"]);
+
         // print(data["message"]);
       }
     } catch (e) {

@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/controller/phone_verify/phone_verify.dart';
 import '../../../constants/constants.dart';
+import '../../../controller/check_user.dart';
 import '../../../controller/otp.dart';
 import '../../../helper/keyboard.dart';
 
@@ -14,10 +17,14 @@ class OtpForm extends StatefulWidget {
 }
 
 class _OtpFormState extends State<OtpForm> {
-  OtpController otp = Get.find();
+  OtpController otp = Get.put(OtpController());
+  checkuserController phoneController =
+      Get.put(checkuserController());
   FocusNode? pin2FocusNode;
   FocusNode? pin3FocusNode;
   FocusNode? pin4FocusNode;
+  FocusNode? pin5FocusNode;
+  FocusNode? pin6FocusNode;
 
   @override
   void initState() {
@@ -25,6 +32,8 @@ class _OtpFormState extends State<OtpForm> {
     pin2FocusNode = FocusNode();
     pin3FocusNode = FocusNode();
     pin4FocusNode = FocusNode();
+    pin5FocusNode = FocusNode();
+    pin6FocusNode = FocusNode();
   }
 
   @override
@@ -33,6 +42,8 @@ class _OtpFormState extends State<OtpForm> {
     pin2FocusNode!.dispose();
     pin3FocusNode!.dispose();
     pin4FocusNode!.dispose();
+    pin5FocusNode!.dispose();
+    pin6FocusNode!.dispose();
   }
 
   void nextField(String value, FocusNode? focusNode) {
@@ -42,8 +53,30 @@ class _OtpFormState extends State<OtpForm> {
   }
 
   final _formKey = GlobalKey<FormState>();
-  bool _isloading = false;
+  FirebaseAuth _auth = FirebaseAuth.instance;
   final _otp = TextEditingController();
+  final _otp1 = TextEditingController();
+  final _otp2 = TextEditingController();
+  final _otp3 = TextEditingController();
+  final _otp4 = TextEditingController();
+  final _otp5 = TextEditingController();
+  final _otp6 = TextEditingController();
+  void signInWithPhoneAuthCredential(
+      PhoneAuthCredential phoneAuthCredential) async {
+    try {
+      print("inside signInWithPhoneAuthCredential");
+      print("test1");
+      final authCredential =
+          await _auth.signInWithCredential(phoneAuthCredential);
+
+      if (authCredential != null) {}
+    } on FirebaseAuthException catch (e) {
+      print("test2");
+
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -51,149 +84,169 @@ class _OtpFormState extends State<OtpForm> {
       child: Column(
         children: [
           SizedBox(height: 15),
-          TextField(
-            decoration: InputDecoration(label: Text("otp")),
-            controller: _otp,
-          )
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         autofocus: true,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) {
-          //           nextField(value, pin2FocusNode);
-          //         },
-          //       ),
-          //     ),
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         focusNode: pin2FocusNode,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) => nextField(value, pin3FocusNode),
-          //       ),
-          //     ),
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         focusNode: pin3FocusNode,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) => nextField(value, pin4FocusNode),
-          //       ),
-          //     ),
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         focusNode: pin4FocusNode,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) {
-          //           if (value.length == 1) {
-          //             pin4FocusNode!.unfocus();
-          //             // Then you need to check is the code is correct or not
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         focusNode: pin4FocusNode,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) {
-          //           if (value.length == 1) {
-          //             pin4FocusNode!.unfocus();
-          //             // Then you need to check is the code is correct or not
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //     SizedBox(
-          //       width: 40,
-          //       child: TextFormField(
-          //         focusNode: pin4FocusNode,
-          //         obscureText: true,
-          //         style: TextStyle(fontSize: 24),
-          //         keyboardType: TextInputType.number,
-          //         textAlign: TextAlign.center,
-          //         decoration: otpInputDecoration,
-          //         onChanged: (value) {
-          //           if (value.length == 1) {
-          //             pin4FocusNode!.unfocus();
-          //             // Then you need to check is the code is correct or not
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          ,
-          SizedBox(height: 15),
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                backgroundColor: kPrimaryColor,
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  autofocus: true,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp1,
+                  onChanged: (value) {
+                    nextField(value, pin2FocusNode);
+                  },
+                ),
               ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  KeyboardUtil.hideKeyboard(context);
-                  setState(() {
-                    _isloading = true;
-                  });
-                  otp.verifyOtp(_otp.text);
-                  // Get.toNamed("/otp");
-                }
-              },
-              child: _isloading
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text("Loading"),
-                        SizedBox(
-                          height: 30,
-                          child: CircularProgressIndicator(
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  focusNode: pin2FocusNode,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp2,
+                  onChanged: (value) => nextField(value, pin3FocusNode),
+                ),
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  focusNode: pin3FocusNode,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp3,
+                  onChanged: (value) => nextField(value, pin4FocusNode),
+                ),
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  focusNode: pin4FocusNode,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp4,
+                  onChanged: (value) => nextField(value, pin5FocusNode),
+                ),
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  focusNode: pin5FocusNode,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp5,
+                  onChanged: (value) => nextField(value, pin6FocusNode),
+                ),
+              ),
+              SizedBox(
+                width: 40,
+                child: TextFormField(
+                  focusNode: pin6FocusNode,
+                  style: TextStyle(fontSize: 24),
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  decoration: otpInputDecoration,
+                  controller: _otp6,
+                  onChanged: (value) {
+                    if (value.length == 1) {
+                      pin6FocusNode!.unfocus();
+                      // Then you need to check is the code is correct or not
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          GestureDetector(
+            onTap: () async {
+              late String replacedPhone = '';
+              phoneController.phoneController.text.startsWith('0')
+                  ? replacedPhone = phoneController.phoneController.text.replaceFirst('0', '+251')
+                  : replacedPhone = phoneController.phoneController.text;
+
+              print(replacedPhone + "-----------------------");
+              await _auth.verifyPhoneNumber(
+                timeout: Duration(seconds: 120),
+                phoneNumber: replacedPhone,
+                verificationCompleted: (credential) async {
+                  signInWithPhoneAuthCredential(credential);
+                },
+                verificationFailed: (varificationFailed) async {
+                  print("Verification erroe");
+                },
+                codeSent: (verificationId, resendingToken) async {},
+                codeAutoRetrievalTimeout: (verificationId) async {},
+              );
+            },
+            child: Text(
+              "Resend OTP Code",
+              style: TextStyle(decoration: TextDecoration.underline),
+            ),
+          ),
+          SizedBox(height: 20),
+          SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: kPrimaryColor,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    KeyboardUtil.hideKeyboard(context);
+                    setState(() {
+                      _otp.text = _otp1.text +
+                          _otp2.text +
+                          _otp3.text +
+                          _otp4.text +
+                          _otp5.text +
+                          _otp6.text;
+                    });
+                    otp.verifyOtp(_otp.text);
+                  }
+                },
+                child: Obx(
+                  () => otp.isLoading.value
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text("Loading"),
+                            SizedBox(
+                              height: 30,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          "Continue",
+                          style: const TextStyle(
+                            fontSize: 18,
                             color: Colors.white,
                           ),
                         ),
-                      ],
-                    )
-                  : Text(
-                      "Continue",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
-          ),
+                ),
+              )),
         ],
       ),
     );

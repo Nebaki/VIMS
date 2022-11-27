@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import '../screen/otp/otp.dart';
 
 class OtpController extends GetxController {
   var authstate = "".obs;
+  var isLoading = false.obs;
   String verificationId = '';
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -10,26 +12,33 @@ class OtpController extends GetxController {
 
   Future verifyPhone(String phone) async {
     try {
-
+      isLoading.value = true;
       phone.startsWith('0')
           ? replacedPhone = phone.replaceFirst('0', '+251')
           : replacedPhone = phone;
 
-      print(replacedPhone);
       await auth.verifyPhoneNumber(
-          phoneNumber: replacedPhone,
-          timeout: Duration(seconds: 40),
-          verificationCompleted: (AuthCredential authcredential) {},
-          verificationFailed: (AuthException) {
-            Get.snackbar("Error", "problem shen send the code");
-          },
-          codeSent: (String id, [int? forcesend]) {
-            this.verificationId = id;
-            authstate.value = "otp sent";
-          },
-          codeAutoRetrievalTimeout: (id) {
-            this.verificationId = id;
-          });
+        phoneNumber: replacedPhone,
+        timeout: Duration(seconds: 40),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          print(credential);
+          print(replacedPhone + '@@@@@@@@@@@');
+          Get.to(() => OtpScreen());
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          if (e.code == 'invalid-phone-number') {
+            print('The provided phone number is not valid.');
+          }
+          isLoading.value = false;
+        },
+        codeSent: (String id, [int? forcesend]) {
+          this.verificationId = id;
+          authstate.value = "otp sent";
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          
+        },
+      );
     } catch (e) {
       print(e.toString());
     }
@@ -40,8 +49,10 @@ class OtpController extends GetxController {
       var credential = await auth.signInWithCredential(
           PhoneAuthProvider.credential(
               verificationId: this.verificationId, smsCode: otp));
+
+      // print("@@@@@@@@@@@@@@" + credential.toString());
       if (credential.user != null) {
-        Get.rawSnackbar(message: "neba");
+        Get.toNamed("/forgot_pass");
       }
     } catch (e) {
       print(e.toString());

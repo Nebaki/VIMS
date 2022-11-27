@@ -4,7 +4,6 @@ import 'package:mob_app/controller/change_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';
 import '../../../constants/constants.dart';
-import '../../../controller/auth/auth.dart';
 import '../../../helper/keyboard.dart';
 import '../../../util/themes.dart';
 
@@ -19,15 +18,14 @@ class _change_profile_formState extends State<change_profile_form> {
   final _formKey = GlobalKey<FormState>();
   String? name;
   String? phone;
+  String _phone = '';
   String _name = '';
   String _email = '';
-  String _phone = '';
   String? email;
-  bool _passwordVisible = false;
 
-  bool _isloading = false;
   void initState() {
-    _passwordVisible = false;
+    super.initState();
+    initial();
   }
 
   void changeProfil() {
@@ -44,7 +42,9 @@ class _change_profile_formState extends State<change_profile_form> {
       _name = profileData.getString('name')!;
       _email = profileData.getString('email')!;
       _phone = profileData.getString('phone')!;
-      PhoneC.text = _phone;
+      change_prof.phoneController.text = _phone;
+      change_prof.fullNameController.text = _name;
+      change_prof.emailController.text = _email;
     });
   }
 
@@ -81,9 +81,7 @@ class _change_profile_formState extends State<change_profile_form> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     KeyboardUtil.hideKeyboard(context);
-                    setState(() {
-                      _isloading = true;
-                    });
+                    setState(() {});
                     change_prof.change_profile(context: context);
                   }
                 },
@@ -185,7 +183,7 @@ class _change_profile_formState extends State<change_profile_form> {
         controller: change_prof.phoneController,
         decoration: InputDecoration(
             labelText: "phone number",
-            hintText: "0911111111",
+            hintText: "Enter your phone number",
             suffixIcon: const CustomSurffixIcon(
               svgIcon: "assets/icons/Phone.svg",
               color: kPrimaryColor,

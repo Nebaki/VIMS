@@ -19,7 +19,6 @@ class _change_pass_formState extends State<change_pass_form> {
   bool _oldpasswordVisible = false;
   bool _passwordVisible = false;
   bool _RepasswordVisible = false;
-  bool _isloading = false;
   void initState() {
     _passwordVisible = false;
     _RepasswordVisible = false;
@@ -60,9 +59,6 @@ class _change_pass_formState extends State<change_pass_form> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     KeyboardUtil.hideKeyboard(context);
-                    setState(() {
-                      _isloading = true;
-                    });
                     change_pass.changepass(context: context);
                   }
                 },

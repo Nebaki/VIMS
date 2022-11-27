@@ -16,17 +16,17 @@ const headingStyle = TextStyle(
 
 final RegExp emailValidatorRegExp =
     RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-const String kEmailNullError = "please enter your email";
-const String kInvalidEmailError = "please enter valid email";
+const String kEmailNullError = "Please enter your email";
+const String kInvalidEmailError = "Please enter valid email";
 const String kPassNullError = "Please enter your password";
 const String kShortPassError = "Password is too short";
 const String kLongPassError = "Password is too long";
-const String kShortphoneError = "Phone Number  is too short";
-const String kLongphoneError = "Phone Number is too long";
+const String kShortphoneError = "Phone number  must be 10 digits";
+const String kLongphoneError = "Phone number  must be 10 digits";
 const String kMatchPassError = "Passwords don't match";
 const String kNamelNullError = "Please enter your name";
-const String kNamelShortError = "Name must be 3 and above digits";
-const String kNamelLognError = "Name must be less than 50 digits";
+const String kNamelShortError = "Name must be minimum of 3 characters";
+const String kNamelLognError = "Name must be maximum of 50 characters";
 const String kPhoneNumberNullError = "Please enter your phone number";
 const String kAddressNullError = "Please enter your address";
 
@@ -35,14 +35,12 @@ final otpInputDecoration = InputDecoration(
   border: outlineInputBorder(),
   focusedBorder: outlineInputBorder(),
   enabledBorder: outlineInputBorder(),
-  
 );
 
 OutlineInputBorder outlineInputBorder() {
   return OutlineInputBorder(
     borderRadius: BorderRadius.circular(15),
     borderSide: BorderSide(color: kTextColor),
-    
   );
 }
 
