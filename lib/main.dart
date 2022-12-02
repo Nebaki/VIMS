@@ -1,47 +1,51 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/provider/user_provider.dart';
-import 'package:mob_app/screen/home/hompage.dart';
-import 'package:mob_app/screen/sign_in/signin.dart';
-import 'package:mob_app/screen/sign_up/Signup.dart';
 import 'package:mob_app/util/themes.dart';
-import 'package:provider/provider.dart';
-import 'provider/connectivity_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'constants/constants.dart';
+import 'controller/connection_checker/controller_binding.dart';
 import 'routes.dart';
 
-void main() {
-  runApp(const MyApp());
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  final messaging = FirebaseMessaging.instance;
+
+final settings = await messaging.requestPermission(
+ alert: true,
+ announcement: false,
+ badge: true,
+ carPlay: false,
+ criticalAlert: false,
+ provisional: false,
+ sound: true,
+);
+
+ if (kDebugMode) {
+   print('Permission granted: ${settings.authorizationStatus}');
+ }
+  runApp(MyApp());
+   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: kPrimaryColor,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({
+  MyApp({
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create:(context) => UserProvider(),),
-        ChangeNotifierProvider(
-          create: (context) => ConnectivityProvider(),
-          child: Signin(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ConnectivityProvider(),
-          child: const SignUp(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ConnectivityProvider(),
-          child: const Homepage(),
-        ),
-      ],
-      child:GetMaterialApp(
+    return GetMaterialApp(
       theme: theme(),
-      getPages:AppPages.routes
-    ) ,
+      getPages: AppPages.routes,
+      initialBinding: ControllerBinding(),
     );
-
-    
   }
 }

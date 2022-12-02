@@ -1,55 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../Componets/Custom_Icons.dart';
-import '../../Componets/Form_err.dart';
-import '../../Componets/defaualt_button.dart';
-import '../../util/constants.dart';
+import 'package:mob_app/controller/reset_pass.dart';
+import 'package:mob_app/util/no_internet.dart';
+import '../../componets/loading_button.dart';
+import '../../constants/constants.dart';
+import '../../controller/connection_checker/connection_manager_controller.dart';
+import '../../helper/keyboard.dart';
 import '../../util/themes.dart';
-import '../../Componets/no_account_text.dart';
 
-class ForgotPass extends StatelessWidget {
-  const ForgotPass({super.key});
+class ForgotPass extends StatefulWidget {
+  ForgotPass({super.key});
 
   @override
+  State<ForgotPass> createState() => _ForgotPassState();
+}
+
+class _ForgotPassState extends State<ForgotPass> {
+  ResetPassController respass = Get.put(ResetPassController());
+
+  void signInUser() {
+    respass.Reset(
+      context: context,
+    );
+  }
+
+  ConnectionManagerController _controller =
+      Get.put(ConnectionManagerController());
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          "Forgot password",
-          textAlign: TextAlign.end,
-        ),
-      ),
-      body: SizedBox(
-          width: double.maxFinite,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: const [
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Text(
-                    "Forgot Password",
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Please enter your email and we will send ",
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 20),
-                  ForgotPassForm(),
-                ],
+    return Obx(() => _controller.connectionType.value == 1 ||
+            _controller.connectionType.value == 2
+        ? Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Text(
+                "Reset password",
+                textAlign: TextAlign.end,
               ),
             ),
-          )),
-    );
+            body: SizedBox(
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: const [
+                        SizedBox(
+                          height: 50,
+                        ),
+                        Text(
+                          "Reset Password",
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        ForgotPassForm(),
+                      ],
+                    ),
+                  ),
+                )),
+          )
+        : NoInternet());
   }
 }
 
@@ -61,73 +75,136 @@ class ForgotPassForm extends StatefulWidget {
 }
 
 class _ForgotPassFormState extends State<ForgotPassForm> {
+  String? phone;
+  String? password;
+  String? confirm_password;
+  bool _isloading = false;
+
+  bool _passwordVisible = false;
+  bool _RepasswordVisible = false;
+
+  ResetPassController resetpass = Get.put(ResetPassController());
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    List<String> errors = [];
-    String? email;
+    final _formKey = GlobalKey<FormState>();
+
     return Form(
-      key: formKey,
+      key: _formKey,
       child: Column(
         children: [
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            onSaved: (newValue) => email = newValue,
-            onChanged: (value) {
-              if (value.isNotEmpty && errors.contains(kEmailNullError)) {
-                setState(() {
-                  errors.remove(kEmailNullError);
-                });
-              } else if (emailValidatorRegExp.hasMatch(value) &&
-                  errors.contains(kInvalidEmailError)) {
-                setState(() {
-                  errors.remove(kInvalidEmailError);
-                });
-              }
-              return null;
-            },
-            validator: (value) {
-              if (value!.isEmpty && !errors.contains(kEmailNullError)) {
-                setState(() {
-                  errors.add(kEmailNullError);
-                });
-              } else if (!emailValidatorRegExp.hasMatch(value) &&
-                  !errors.contains(kInvalidEmailError)) {
-                setState(() {
-                  errors.add(kInvalidEmailError);
-                });
-              }
-              return null;
-            },
-            decoration: InputDecoration(
-                labelText: "Email",
-                hintText: "Enter your email",
-                suffixIcon:
-                    const CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg",color: kPrimaryColor,),
-                border: inputDecorationTheme().border,
-                enabledBorder: inputDecorationTheme().enabledBorder,
-                focusedBorder: inputDecorationTheme().focusedBorder,
-                contentPadding: inputDecorationTheme().contentPadding,
-                floatingLabelBehavior:
-                    inputDecorationTheme().floatingLabelBehavior),
-          ),
-          const SizedBox(height: 30),
-          FormError(errors: errors),
-          const SizedBox(
-            height: 10,
-          ),
-          DefaultButton(
-            text: "Continue",
-            press: () {
-              if (formKey.currentState!.validate()) {
-                Get.toNamed("/otp");
-              }
-            },
+          buildPasswordFormField(),
+          const SizedBox(height: 20),
+          buildConformPassFormField(),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: kPrimaryColor,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    KeyboardUtil.hideKeyboard(context);
+                    setState(() {
+                      _isloading = true;
+                    });
+                    resetpass.Reset(context: context);
+                  }
+                },
+                child: _isloading ? LoadingButton() : ContinueButton()),
           ),
           const SizedBox(height: 10),
-          const NoAccountText(),
         ],
       ),
+    );
+  }
+
+  TextFormField buildPasswordFormField() {
+    return TextFormField(
+      keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      obscureText: !_passwordVisible,
+      controller: resetpass.passController,
+      onSaved: (newValue) {
+        resetpass.passController.text = newValue!;
+      },
+      onChanged: (value) {
+        resetpass.passController.text = value;
+      },
+      validator: (value) {
+        if (value!.isEmpty) {
+          return kPassNullError;
+        } else if (value.length < 4) {
+          return kShortPassError;
+        } else if (value.length >= 25) {
+          return kLongPassError;
+        }
+
+        return null;
+      },
+      maxLength: 25,
+      decoration: InputDecoration(
+        labelText: "Password",
+        hintText: "Enter your password",
+        // suffixIcon: IconButton(
+        //   icon: Icon(
+        //     _passwordVisible ? Icons.visibility : Icons.visibility_off,
+        //   ),
+        //   onPressed: () {
+        //     setState(() {
+        //       _passwordVisible = !_passwordVisible;
+        //     });
+        //   },
+        // ),
+        border: inputDecorationTheme().border,
+        enabledBorder: inputDecorationTheme().enabledBorder,
+        focusedBorder: inputDecorationTheme().focusedBorder,
+        contentPadding: inputDecorationTheme().contentPadding,
+        floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior,
+      ),
+    );
+  }
+
+  TextFormField buildConformPassFormField() {
+    return TextFormField(
+      obscureText: !_RepasswordVisible,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      maxLength: 25,
+      onSaved: (newValue) => confirm_password = newValue,
+      onChanged: (value) {
+        confirm_password = value;
+      },
+      validator: (value) {
+        if (resetpass.passController.text != confirm_password) {
+          return kMatchPassError;
+        } else if (resetpass.passController.text.isEmpty) {
+          return kRepassNullError;
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+          labelText: "Confirm password",
+          hintText: "Enter your confirm password",
+          // suffixIcon: IconButton(
+          //   icon: Icon(
+          //     _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
+          //   ),
+          //   onPressed: () {
+          //     setState(() {
+          //       _RepasswordVisible = !_RepasswordVisible;
+          //     });
+          //   },
+          // ),
+          border: inputDecorationTheme().border,
+          enabledBorder: inputDecorationTheme().enabledBorder,
+          focusedBorder: inputDecorationTheme().focusedBorder,
+          contentPadding: inputDecorationTheme().contentPadding,
+          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
     );
   }
 }

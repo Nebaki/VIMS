@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/login.dart';
+import 'package:mob_app/componets/loading_button.dart';
+import 'package:mob_app/controller/auth/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';
-import '../../../componets/Form_err.dart';
-import '../../../componets/defaualt_button.dart';
-import '../../../util/constants.dart';
+import '../../../constants/constants.dart';
 import '../../../helper/keyboard.dart';
 
 class SignForm extends StatefulWidget {
@@ -17,25 +17,25 @@ class _SignFormState extends State<SignForm> {
   String? phone;
   String? password;
   bool? remember = false;
+  bool _passwordVisible = false;
+  final passController = TextEditingController();
+  final phoneController = TextEditingController();
   final List<String?> errors = [];
 
-  void addError({String? error}) {
-    if (!errors.contains(error))
-      setState(() {
-        errors.add(error);
-      });
+  void initState() {
+    _loadUserphone();
+    _passwordVisible = false;
+    super.initState();
   }
 
-  void removeError({String? error}) {
-    if (errors.contains(error))
-      setState(() {
-        errors.remove(error);
-      });
+  AuthController loginController = Get.put(AuthController());
+
+  void signInUser() {
+    loginController.signInUser(
+      context: context,
+    );
   }
 
-  bool _isloading = false;
-
-  LoginController loginController = Get.put(LoginController());
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -43,25 +43,31 @@ class _SignFormState extends State<SignForm> {
       child: Column(
         children: [
           buildPhoneFormField(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           buildPasswordFormField(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           Row(
             children: [
-              Checkbox(
-                value: remember,
-                activeColor: kPrimaryColor,
-                onChanged: (value) {
-                  setState(() {
-                    remember = value;
-                  });
-                },
-              ),
+              SizedBox(
+                  height: 24.0,
+                  width: 24.0,
+                  child: Theme(
+                    data: ThemeData(
+                        unselectedWidgetColor:
+                            Color.fromARGB(255, 8, 42, 47) // Your color
+                        ),
+                    child: Checkbox(
+                        activeColor: kPrimaryColor,
+                        value: remember,
+                        onChanged: _handleRemeberme),
+                  )),
               const Text("Remember me"),
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  Get.toNamed("/forgot_pass");
+                  Get.toNamed(
+                    "/check_user",
+                  );
                 },
                 child: const Text(
                   "Forgot Password",
@@ -70,55 +76,97 @@ class _SignFormState extends State<SignForm> {
               )
             ],
           ),
-          FormError(errors: errors),
           const SizedBox(height: 20),
-          DefaultButton(
-            text: "Continue",
-            press: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                KeyboardUtil.hideKeyboard(context);
-                loginController.login();
-              }
-            },
-            onPressed: () {
-              //
-            },
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: kPrimaryColor,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    KeyboardUtil.hideKeyboard(context);
+                    setState(() {
+                      loginController.LoginphoneController = phoneController;
+                      loginController.LoginpassController = passController;
+                    });
+                    loginController.signInUser(context: context);
+                  }
+                },
+                child: Obx(() => loginController.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
           ),
         ],
       ),
     );
   }
 
+  void _handleRemeberme(bool? value) {
+    remember = value;
+    SharedPreferences.getInstance().then(
+      (prefs) {
+        prefs.setBool("remember_me", value!);
+        prefs.setString('phone', phoneController.text);
+        prefs.setString('password', passController.text);
+      },
+    );
+    setState(() {
+      remember = value;
+    });
+  }
+
+  void _loadUserphone() async {
+    print("Load phone");
+    try {
+      SharedPreferences refs = await SharedPreferences.getInstance();
+      var phone = refs.getString("phone") ?? "";
+      var pass = refs.getString("password") ?? "";
+      var _remeberMe = refs.getBool("remember_me") ?? false;
+
+      print(_remeberMe);
+      print(phone);
+      if (_remeberMe) {
+        setState(() {
+          remember = true;
+        });
+        String replaced = "";
+        phone.startsWith('+251')
+            ? replaced = phone.replaceFirst('+251', "0")
+            : replaced = phone;
+
+        phoneController.text = replaced;
+        passController.text = pass;
+      }
+      print(phoneController.text);
+      print(passController.text);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   TextFormField buildPasswordFormField() {
     return TextFormField(
-      obscureText: false,
+      keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      obscureText: !_passwordVisible,
       onSaved: (newValue) => password = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        }
-        return null;
-      },
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-          addError(error: kPassNullError);
-          return "";
-        } else if (value.length < 8) {
-          KeyboardUtil.hideKeyboard(context);
-          addError(error: kShortPassError);
-          return "";
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        } else if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
+          return kPassNullError;
+        } else if (value.length < 4) {
+          return kShortPassError;
+        } else if (value.length >= 25) {
+          return kLongPassError;
         }
         return null;
       },
-      controller:loginController.passController,
+      controller: passController, //loginController.passController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -126,9 +174,15 @@ class _SignFormState extends State<SignForm> {
         labelText: "Password",
         hintText: "Enter your password",
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        suffixIcon: const CustomSurffixIcon(
-          svgIcon: "assets/icons/Lock.svg",
-          color: kPrimaryColor,
+        suffixIcon: IconButton(
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _passwordVisible = !_passwordVisible;
+            });
+          },
         ),
       ),
     );
@@ -137,29 +191,32 @@ class _SignFormState extends State<SignForm> {
   TextFormField buildPhoneFormField() {
     return TextFormField(
       keyboardType: TextInputType.phone,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       onSaved: (newValue) => phone = newValue,
+      maxLength: 10,
       onChanged: (value) {
         if (value.isNotEmpty) {
-          removeError(error: kPhoneNumberNullError);
+          return null;
         }
-        return null;
       },
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-          addError(error: kPhoneNumberNullError);
-          return "";
+          return kPhoneNumberNullError;
+        } else if (value.length < 10) {
+          return kShortphoneError;
+        } else if (value.length > 10) {
+          return kLongphoneError;
         }
-        KeyboardUtil.hideKeyboard(context);
         return null;
       },
-      controller: loginController.phoneController,
+      controller: phoneController,
+      //  loginController.phoneController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
         labelText: "Phone",
-        hintText: "Enter your Phone",
+        hintText: "Enter your phone number",
         floatingLabelBehavior: FloatingLabelBehavior.always,
         suffixIcon: const CustomSurffixIcon(
           svgIcon: "assets/icons/Phone.svg",

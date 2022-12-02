@@ -1,17 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/registration.dart';
-import 'package:mob_app/provider/user_provider.dart';
+import 'package:mob_app/componets/loading_button.dart';
+import 'package:mob_app/constants/constants.dart';
+import 'package:mob_app/controller/auth/auth.dart';
 import '../../../componets/Custom_Icons.dart';
-import '../../../componets/Form_err.dart';
-import '../../../componets/defaualt_button.dart';
-import '../../../models/user.dart';
-import '../../../util/constants.dart';
 import '../../../helper/keyboard.dart';
 import '../../../util/themes.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class SignUpForm extends StatefulWidget {
   @override
@@ -21,29 +15,16 @@ class SignUpForm extends StatefulWidget {
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
   String? email;
-  String? password;
+  String password = "";
   String? conform_password;
   String? fullName;
   String? Phone;
   String? role;
   bool remember = false;
+  bool _isloading = false;
   final List<String?> errors = [];
 
-  void addError({String? error}) {
-    if (!errors.contains(error))
-      setState(() {
-        errors.add(error);
-      });
-  }
-
-  void removeError({String? error}) {
-    if (errors.contains(error))
-      setState(() {
-        errors.remove(error);
-      });
-  }
-  RegistrationController registrationController =
-      Get.put(RegistrationController());
+  AuthController registrationController = Get.put(AuthController());
 
   var items = [
     'company',
@@ -57,7 +38,30 @@ class _SignUpFormState extends State<SignUpForm> {
     ],
   );
 
-  late String selectedRole;
+  String? selectedRole;
+  String? Role;
+  bool _passwordVisible = false;
+  bool _RepasswordVisible = false;
+  void initState() {
+    _passwordVisible = false;
+    _RepasswordVisible = false;
+    setpassAndrepass();
+
+    super.initState();
+  }
+
+  void setpassAndrepass() {
+    setState(() {
+      password = registrationController.passController.text;
+    });
+  }
+
+  void signUpUser() {
+    registrationController.signUpUser(
+      context: context,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -66,30 +70,38 @@ class _SignUpFormState extends State<SignUpForm> {
         children: [
           buildFullNameFormField(),
           const SizedBox(height: 10),
+          // buildPhoneNumberFormField(),
+          // const SizedBox(height: 10),
           buildEmailFormField(),
-          const SizedBox(height: 10),
-          buildPhoneNumberFormField(),
           const SizedBox(height: 10),
           buildPasswordFormField(),
           const SizedBox(height: 10),
           buildConformPassFormField(),
           const SizedBox(height: 10),
-          builRoleField(),
-          const SizedBox(height: 10),
-          FormError(errors: errors),
-          const SizedBox(height: 20),
-          DefaultButton(
-              text: "Continue",
-              press: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  KeyboardUtil.hideKeyboard(context);
-                  registrationController.register();
-                }
-              },
-              onPressed: () {
-                Get.toNamed("/homepage");
-              }),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  backgroundColor: kPrimaryColor,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    KeyboardUtil.hideKeyboard(context);
+                    setState(() {
+                      _isloading = true;
+                    });
+                    registrationController.signUpUser(context: context);
+                  }
+                },
+                child: Obx(() => registrationController.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
+          ),
         ],
       ),
     );
@@ -99,23 +111,22 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
         keyboardType: TextInputType.phone,
         onSaved: (newValue) => Phone = newValue,
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            removeError(error: kPhoneNumberNullError);
-          }
-          return null;
-        },
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (value) {
           if (value!.isEmpty) {
-            addError(error: kPhoneNumberNullError);
-            return "";
+            return kPhoneNumberNullError;
+          } else if (value.length < 10) {
+            return kShortphoneError;
+          } else if (value.length > 13) {
+            return kLongphoneError;
           }
           return null;
         },
+        maxLength: 10,
         controller: registrationController.phoneController,
         decoration: InputDecoration(
             labelText: "Phone number",
-            hintText: "Enter your Phone number",
+            hintText: "Enter your phone number",
             suffixIcon: const CustomSurffixIcon(
               svgIcon: "assets/icons/Phone.svg",
               color: kPrimaryColor,
@@ -131,16 +142,14 @@ class _SignUpFormState extends State<SignUpForm> {
   TextFormField buildFullNameFormField() {
     return TextFormField(
       onSaved: (newValue) => fullName = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kNamelNullError);
-        }
-        return null;
-      },
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value!.isEmpty) {
-          addError(error: kNamelNullError);
-          return "";
+          return kNamelNullError;
+        } else if (value.length < 3) {
+          return kNamelShortError;
+        } else if (value.length > 50) {
+          return kNamelLognError;
         }
         return null;
       },
@@ -160,104 +169,81 @@ class _SignUpFormState extends State<SignUpForm> {
     );
   }
 
-  DropdownButtonFormField builRoleField() {
-    return DropdownButtonFormField(
-      decoration: InputDecoration(
-          border: inputDecorationTheme().border,
-          hintText: "Role",
-          enabledBorder: inputDecorationTheme().enabledBorder,
-          focusedBorder: inputDecorationTheme().focusedBorder,
-          contentPadding: inputDecorationTheme().contentPadding,
-          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
-      // hint: const Text("Role"),
-      icon: const Padding(
-        padding: EdgeInsets.only(left: 48.0),
-        child: Icon(Icons.keyboard_arrow_down),
-      ),
-      iconSize: 24,
-      isDense: true,
-      items: items
-          .map((String items) => DropdownMenuItem(
-                child: Text(items),
-                value: items,
-              ))
-          .toList(),
-      onChanged: (value) {
-        if (items.contains(value)) {
-          setState(() {
-            registrationController.role = value;
-          });
-        }
+  TextFormField buildPasswordFormField() {
+    setState(() {
+      password = registrationController.passController.text;
+    });
+    return TextFormField(
+      keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      obscureText: !_passwordVisible,
+      controller: registrationController.passController,
+      onSaved: (newValue) {
+        password = newValue!;
       },
+      validator: (value) {
+        if (value!.isEmpty) {
+          return kPassNullError;
+        } else if (value.length < 4) {
+          return kShortPassError;
+        } else if (value.length >= 25) {
+          return kLongPassError;
+        }
+
+        return null;
+      },
+      maxLength: 25,
+      decoration: InputDecoration(
+        labelText: "Password",
+        hintText: "Enter your password",
+        suffixIcon: IconButton(
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _passwordVisible = !_passwordVisible;
+            });
+          },
+        ),
+        border: inputDecorationTheme().border,
+        enabledBorder: inputDecorationTheme().enabledBorder,
+        focusedBorder: inputDecorationTheme().focusedBorder,
+        contentPadding: inputDecorationTheme().contentPadding,
+        floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior,
+      ),
     );
   }
 
   TextFormField buildConformPassFormField() {
     return TextFormField(
-      obscureText: true,
+      obscureText: !_RepasswordVisible,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      maxLength: 25,
       onSaved: (newValue) => conform_password = newValue,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.isNotEmpty && password == conform_password) {
-          removeError(error: kMatchPassError);
-        }
         conform_password = value;
       },
       validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if ((password != value)) {
-          addError(error: kMatchPassError);
-          return "";
+        if (password != value) {
+          return kMatchPassError;
+        } else if (value!.isEmpty) {
+          return kPassNullError;
         }
         return null;
       },
       decoration: InputDecoration(
-          labelText: "Confirm Password",
+          labelText: "Confirm password",
           hintText: "Re-enter your password",
-          suffixIcon: const CustomSurffixIcon(
-            svgIcon: "assets/icons/Lock.svg",
-            color: kPrimaryColor,
-          ),
-          border: inputDecorationTheme().border,
-          enabledBorder: inputDecorationTheme().enabledBorder,
-          focusedBorder: inputDecorationTheme().focusedBorder,
-          contentPadding: inputDecorationTheme().contentPadding,
-          floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
-    );
-  }
-
-  TextFormField buildPasswordFormField() {
-    return TextFormField(
-      obscureText: true,
-      onSaved: (newValue) => password = newValue,
-      onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kPassNullError);
-        } else if (value.length >= 8) {
-          removeError(error: kShortPassError);
-        }
-        password = value;
-      },
-      validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kPassNullError);
-          return "";
-        } else if (value.length < 8) {
-          addError(error: kShortPassError);
-          return "";
-        }
-        return null;
-      },
-      controller: registrationController.passController,
-      decoration: InputDecoration(
-          labelText: "Password",
-          hintText: "Enter your password",
-          suffixIcon: const CustomSurffixIcon(
-            svgIcon: "assets/icons/Lock.svg",
-            color: kPrimaryColor,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: () {
+              setState(() {
+                _RepasswordVisible = !_RepasswordVisible;
+              });
+            },
           ),
           border: inputDecorationTheme().border,
           enabledBorder: inputDecorationTheme().enabledBorder,
@@ -271,28 +257,20 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       onSaved: (newValue) => email = newValue,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      controller: registrationController.emailController,
       onChanged: (value) {
-        if (value.isNotEmpty) {
-          removeError(error: kEmailNullError);
-        } else if (emailValidatorRegExp.hasMatch(value)) {
-          removeError(error: kInvalidEmailError);
-        }
         return null;
       },
       validator: (value) {
-        if (value!.isEmpty) {
-          addError(error: kEmailNullError);
-          return "";
-        } else if (!emailValidatorRegExp.hasMatch(value)) {
-          addError(error: kInvalidEmailError);
-          return "";
+        if (value!.isNotEmpty) {
+          if (!emailValidatorRegExp.hasMatch(value)) return kInvalidEmailError;
         }
         return null;
       },
-      controller: registrationController.emailController,
       decoration: InputDecoration(
           labelText: "Email",
-          hintText: "Enter your email",
+          hintText: "Enter your email address",
           suffixIcon: const CustomSurffixIcon(
             svgIcon: "assets/icons/Mail.svg",
             color: kPrimaryColor,
