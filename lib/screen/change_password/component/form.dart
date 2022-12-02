@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import '../../../constants/constants.dart';
 import '../../../controller/auth/auth.dart';
 import '../../../helper/keyboard.dart';
@@ -20,6 +21,7 @@ class _change_pass_formState extends State<change_pass_form> {
   bool _passwordVisible = false;
   bool _RepasswordVisible = false;
   void initState() {
+    super.initState();
     _passwordVisible = false;
     _RepasswordVisible = false;
   }
@@ -62,28 +64,9 @@ class _change_pass_formState extends State<change_pass_form> {
                     change_pass.changepass(context: context);
                   }
                 },
-                child: Obx(
-                  () => change_pass.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                )),
+                child: Obx(() => change_pass.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
           ),
         ],
       ),
@@ -93,23 +76,20 @@ class _change_pass_formState extends State<change_pass_form> {
   TextFormField buildoldPasswordFormField() {
     return TextFormField(
       keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       obscureText: !_oldpasswordVisible,
       onSaved: (newValue) => password = newValue,
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
           return kPassNullError;
         } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
           return kShortPassError;
         } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
           return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-        }
+        } else if (value.isNotEmpty) {}
         return null;
       },
+      maxLength: 25,
       controller: change_pass.old_passwordController,
       decoration: InputDecoration(
         labelText: "Old password",
@@ -136,27 +116,27 @@ class _change_pass_formState extends State<change_pass_form> {
   TextFormField buildPasswordFormField() {
     return TextFormField(
       keyboardType: TextInputType.visiblePassword,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       obscureText: !_passwordVisible,
-      onSaved: (newValue) => password = newValue,
+      controller: change_pass.newpassController,
+      onSaved: (newValue) {
+        password = newValue!;
+      },
       validator: (value) {
         if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
           return kPassNullError;
         } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
           return kShortPassError;
         } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
           return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
         }
+
         return null;
       },
-      controller: change_pass.newpassController,
+      maxLength: 25,
       decoration: InputDecoration(
-        labelText: "New password",
-        hintText: "Enter your new password",
+        labelText: "Password",
+        hintText: "Enter your password",
         suffixIcon: IconButton(
           icon: Icon(
             _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -179,31 +159,25 @@ class _change_pass_formState extends State<change_pass_form> {
   TextFormField buildConformPassFormField() {
     return TextFormField(
       obscureText: !_RepasswordVisible,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      maxLength: 25,
       onSaved: (newValue) => conform_password = newValue,
       onChanged: (value) {
         conform_password = value;
       },
+      controller: change_pass.repassController,
       validator: (value) {
-        if (value!.isEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-          return kPassNullError;
-        } else if (value.length < 4) {
-          KeyboardUtil.hideKeyboard(context);
-          return kShortPassError;
-        } else if (value.length >= 25) {
-          KeyboardUtil.hideKeyboard(context);
-          return kLongPassError;
-        } else if (value.isNotEmpty) {
-          KeyboardUtil.hideKeyboard(context);
-        } else if ((password != value)) {
+        if (change_pass.newpassController.text !=
+            change_pass.repassController.text) {
           return kMatchPassError;
+        } else if (value!.isEmpty) {
+          return kPassNullError;
         }
         return null;
       },
-      controller: change_pass.repassController,
       decoration: InputDecoration(
-          labelText: "Confirm Password",
-          hintText: "Re-enter your new password",
+          labelText: "Confirm password",
+          hintText: "Re-enter your password",
           suffixIcon: IconButton(
             icon: Icon(
               _RepasswordVisible ? Icons.visibility : Icons.visibility_off,

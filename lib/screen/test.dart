@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/check_user.dart';
 import 'package:mob_app/controller/otp.dart';
 
 import '../Componets/Custom_Icons.dart';
@@ -12,8 +11,6 @@ import '../constants/constants.dart';
 import '../helper/keyboard.dart';
 import 'package:http/http.dart' as http;
 import '../util/api_endpoints.dart';
-import '../util/themes.dart';
-import 'check_user/component/form.dart';
 
 class Test extends StatefulWidget {
   Test({super.key});

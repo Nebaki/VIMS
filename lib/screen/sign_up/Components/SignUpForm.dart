@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import 'package:mob_app/constants/constants.dart';
 import 'package:mob_app/controller/auth/auth.dart';
 import '../../../componets/Custom_Icons.dart';
@@ -97,28 +98,9 @@ class _SignUpFormState extends State<SignUpForm> {
                     registrationController.signUpUser(context: context);
                   }
                 },
-                child: Obx(
-                  () => registrationController.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                )),
+                child: Obx(() => registrationController.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
           ),
         ],
       ),
@@ -243,8 +225,10 @@ class _SignUpFormState extends State<SignUpForm> {
         conform_password = value;
       },
       validator: (value) {
-        if (password != conform_password) {
+        if (password != value) {
           return kMatchPassError;
+        } else if (value!.isEmpty) {
+          return kPassNullError;
         }
         return null;
       },
@@ -280,9 +264,7 @@ class _SignUpFormState extends State<SignUpForm> {
       },
       validator: (value) {
         if (value!.isNotEmpty) {
-        
-          if (!emailValidatorRegExp.hasMatch(value)) 
-          return kInvalidEmailError;
+          if (!emailValidatorRegExp.hasMatch(value)) return kInvalidEmailError;
         }
         return null;
       },

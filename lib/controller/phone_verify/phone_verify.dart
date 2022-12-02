@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/constants/constants.dart';
 
 class PhoneVerifyController extends GetxController {
   var authstate = "".obs;
@@ -17,16 +18,29 @@ class PhoneVerifyController extends GetxController {
       phone.startsWith('0')
           ? replacedPhone = phone.replaceFirst('0', '+251')
           : replacedPhone = phone;
-      print(replacedPhone + "+++++++++");
       replacedPhone.obs;
+      verificationComplete(PhoneAuthCredential credential) async {
+        await auth.signInWithCredential(credential).then((value) async {
+          if (value.user != null) {
+          } else {
+            showSnackBar("Failed!!" + "verificationCompleted");
+          }
+        }).catchError((e) {
+          print(e.runtimeType);
+          showSnackBar("Please try again! later");
+        });
+      }
 
       await auth.verifyPhoneNumber(
         phoneNumber: replacedPhone,
         timeout: Duration(seconds: 40),
-        verificationCompleted: (PhoneAuthCredential credential) async {},
+        verificationCompleted: verificationComplete,
         verificationFailed: (FirebaseAuthException e) {
           if (e.code == 'invalid-phone-number') {
-            print('The provided phone number is not valid.');
+            isLoading.value = false;
+            showSnackBar("invalid phone number");
+          } else if (e.code == 'too-many-requests') {
+            showSnackBar("Too many request");
           }
           isLoading.value = false;
         },
@@ -34,10 +48,14 @@ class PhoneVerifyController extends GetxController {
           this.verificationId = id;
           authstate.value = "otp sent";
         },
-        codeAutoRetrievalTimeout: (String verificationId) {},
+        codeAutoRetrievalTimeout: (String verificationId) {
+          showSnackBar("timed out");
+        },
       );
     } catch (e) {
-      print(e.toString());
+      showSnackBar("Please try again later!");
+      isLoading.value = false;
+      print(e.runtimeType);
     }
   }
 
@@ -51,9 +69,15 @@ class PhoneVerifyController extends GetxController {
         isLoading.value = false;
         Get.toNamed("/signup");
       }
-      isLoading.value = false;
-    } catch (e) {
-      print(e.toString());
+    } on FirebaseAuthException catch (e) {
+      showSnackBar(e.message.toString());
+      print('Failed with error code: ${e.code}');
+      print(e.message);
     }
+    //  catch (e) {
+    //   showSnackBar("hey there!");
+    //   isLoading.value = false;
+    //   print(e.runtimeType);
+    // }
   }
 }

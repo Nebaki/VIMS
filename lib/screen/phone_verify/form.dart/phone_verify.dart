@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/Componets/Custom_Icons.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import 'package:mob_app/controller/auth/auth.dart';
 import '../../../constants/constants.dart';
+import '../../../controller/phone_verify/check_phone.dart';
 import '../../../controller/phone_verify/phone_verify.dart';
 import '../../../helper/keyboard.dart';
 import 'otp_checker.dart';
@@ -17,8 +19,9 @@ class phone_verify_Form extends StatefulWidget {
 class _phone_verify_FormState extends State<phone_verify_Form> {
   final formKey = GlobalKey<FormState>();
   String? phone;
-  AuthController phonecontroller = Get.put(AuthController());
   PhoneVerifyController phonever = Get.put(PhoneVerifyController());
+  CheckPhoneController checkPhone = Get.put(CheckPhoneController());
+  AuthController registrationPhone = Get.put(AuthController());
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -40,7 +43,7 @@ class _phone_verify_FormState extends State<phone_verify_Form> {
               }
               return null;
             },
-            controller: phonecontroller.phoneController,
+            controller: checkPhone.phoneController,
             decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
@@ -54,10 +57,7 @@ class _phone_verify_FormState extends State<phone_verify_Form> {
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           SizedBox(
               width: double.infinity,
               height: 56,
@@ -72,35 +72,12 @@ class _phone_verify_FormState extends State<phone_verify_Form> {
                   if (formKey.currentState!.validate()) {
                     formKey.currentState!.save();
                     KeyboardUtil.hideKeyboard(context);
-                    phonever.verifyPhone(phonecontroller.phoneController.text);
-                    Future.delayed(Duration(seconds: 3), () {
-                      Get.to(() => phone_OtpScreen());
-                      phonever.isLoading.value = false;
-                    });
+                    checkPhone.check_phone();
                   }
                 },
-                child: Obx(
-                  () => phonever.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                ),
+                child: Obx(() => checkPhone.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton()),
               )),
           const SizedBox(height: 10),
         ],

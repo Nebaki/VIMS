@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../screen/otp/otp.dart';
-import '../util/api_endpoints.dart';
+import 'package:mob_app/constants/constants.dart';
+import 'package:mob_app/controller/phone_verify/phone_verify.dart';
+import '../../screen/phone_verify/form.dart/otp_checker.dart';
+import '../../util/api_endpoints.dart';
+import '../otp.dart';
 import 'package:http/http.dart' as http;
 
-import 'otp.dart';
-
-class checkuserController extends GetxController {
+class CheckPhoneController extends GetxController {
+  PhoneVerifyController phonever = Get.put(PhoneVerifyController());
   TextEditingController phoneController = TextEditingController();
   RxString controllerText = ''.obs;
   var isLoading = false.obs;
@@ -22,13 +24,14 @@ class checkuserController extends GetxController {
     });
   }
 
-  Future<void> check_user() async {
+  Future<void> check_phone() async {
     try {
       isLoading.value = true;
       Future.delayed(Duration(seconds: 7));
       phoneController.text.startsWith('0')
           ? replacedPhone = phoneController.text.replaceFirst('0', '+251')
           : replacedPhone = phoneController.text;
+      print("--------------------");
       var url = Uri.parse(
               ApiEndPoints.baseurl + ApiEndPoints.authendpoints.check_user)
           .replace(queryParameters: {
@@ -41,18 +44,18 @@ class checkuserController extends GetxController {
       var data = jsonDecode(response.body.toString());
       if (response.statusCode == 200) {
         if (data["status"] == true) {
-          print(replacedPhone);
-          otp.verifyPhone(replacedPhone);
-        } else {
+          showSnackBar("User already exist!");
           isLoading.value = false;
-          Get.rawSnackbar(message: data["message"]);
-          // throw jsonDecode(response.body)["message"] ?? "unknown error occured";
+        } else {
+          ;
         }
       } else {
-        isLoading.value = false;
-        Get.rawSnackbar(message: data["message"]);
-
-        // print(data["message"]);
+        print(replacedPhone);
+        phonever.verifyPhone(replacedPhone);
+        Future.delayed(Duration(seconds: 4), (() {
+          Get.to(() => phone_OtpScreen());
+          isLoading.value = false;
+        }));
       }
     } catch (e) {
       print(e.toString());

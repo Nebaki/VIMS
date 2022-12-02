@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/check_user.dart';
+import 'package:mob_app/controller/verify_user/verify_user.dart';
 import 'package:mob_app/screen/phone_verify/form.dart/phone_otp_form.dart';
 import 'package:mob_app/util/no_internet.dart';
-import 'package:provider/provider.dart';
 
 import '../../../constants/constants.dart';
 import '../../../controller/connection_checker/connection_manager_controller.dart';
+import '../../../controller/phone_verify/check_phone.dart';
 
 class phone_OtpScreen extends StatefulWidget {
   @override
@@ -16,9 +16,11 @@ class phone_OtpScreen extends StatefulWidget {
 class _phone_OtpScreenState extends State<phone_OtpScreen> {
   final ConnectionManagerController _controller =
       Get.find<ConnectionManagerController>();
-  checkuserController checkuser = Get.put(checkuserController());
+  CheckPhoneController checkphone = Get.put(CheckPhoneController());
+
   @override
   Widget build(BuildContext context) {
+    print(checkphone.controllerText + "-----------+++++++++++++++");
     return Obx(() => _controller.connectionType.value == 1 ||
             _controller.connectionType.value == 2
         ? Scaffold(
@@ -46,7 +48,7 @@ class _phone_OtpScreenState extends State<phone_OtpScreen> {
                           ),
                           Obx(
                             () => Text(
-                              checkuser.controllerText.value,
+                              checkphone.controllerText.value,
                               style: headingStyle,
                             ),
                           ),
@@ -59,8 +61,6 @@ class _phone_OtpScreenState extends State<phone_OtpScreen> {
                         "Enter the verification code we sent to you",
                         style: TextStyle(fontSize: 16),
                       ),
-                      SizedBox(height: 25),
-                      buildTimer(),
                       SizedBox(height: 25),
                       FractionallySizedBox(
                         child: Phone_OtpForm(),

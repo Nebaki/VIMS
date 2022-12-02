@@ -8,9 +8,11 @@ import 'package:http/http.dart' as http;
 import '../../constants/constants.dart';
 import '../../constants/error_handling.dart';
 import '../../util/api_endpoints.dart';
+import '../phone_verify/check_phone.dart';
 
 class AuthController extends GetxController {
   var isLoading = false.obs;
+
   TextEditingController LoginpassController = TextEditingController();
   TextEditingController LoginphoneController = TextEditingController();
   TextEditingController passController = TextEditingController();
@@ -22,7 +24,7 @@ class AuthController extends GetxController {
   TextEditingController repassController = TextEditingController();
   TextEditingController VerphoneController = TextEditingController();
   String? role;
-
+  CheckPhoneController checkphone = Get.put(CheckPhoneController());
   late String replacedPhone = '';
 
   Future<void> signInUser({
@@ -33,6 +35,7 @@ class AuthController extends GetxController {
     LoginphoneController.text.startsWith('0')
         ? replacedPhone = LoginphoneController.text.replaceFirst('0', '+251')
         : replacedPhone = LoginphoneController.text;
+    print(replacedPhone);
 
     try {
       var url =
@@ -57,12 +60,12 @@ class AuthController extends GetxController {
             await prefs.setString('email', data['data']['user']['email']);
             await prefs.setString('phone', data['data']['user']['phone']);
             print(replacedPhone);
-            Get.offAllNamed("/work_order_history");
+            Get.offAllNamed("/vehicleListForCurrentWorkorder");
             // isLoading.value = false;
           });
       isLoading.value = false;
     } catch (e) {
-      showSnackBar(context, e.toString());
+      showSnackBar(e.toString());
     }
   }
 
@@ -70,10 +73,11 @@ class AuthController extends GetxController {
     required BuildContext context,
   }) async {
     isLoading.value = true;
-    print(phoneController.text);
-    phoneController.text.startsWith('0')
-        ? replacedPhone = phoneController.text.replaceFirst('0', '+251')
-        : replacedPhone = phoneController.text;
+    print(checkphone.phoneController.text + "neba");
+    checkphone.phoneController.text.startsWith('0')
+        ? replacedPhone =
+            checkphone.phoneController.text.replaceFirst('0', '+251')
+        : replacedPhone = checkphone.phoneController.text;
     try {
       var url =
           Uri.parse(ApiEndPoints.baseurl + ApiEndPoints.authendpoints.register);
@@ -93,16 +97,17 @@ class AuthController extends GetxController {
           response: res,
           context: context,
           onSucess: () {
-            showSnackBar(context, "Account Created Successfully");
+            showSnackBar("Account Created Successfully");
             Get.offAllNamed("/signin");
           });
       emailController.clear();
       fullNameController.clear();
       passController.clear();
       phoneController.clear();
+      repassController.clear();
       isLoading.value = false;
     } catch (e) {
-      showSnackBar(context, e.toString());
+      showSnackBar(e.toString());
     }
   }
 
@@ -129,7 +134,7 @@ class AuthController extends GetxController {
           context: context,
           onSucess: () {
             Get.offNamed("/profile");
-            showSnackBar(context, "Password is changed Successfully");
+            showSnackBar("Password is changed Successfully");
           });
       isLoading.value = false;
     } catch (e) {

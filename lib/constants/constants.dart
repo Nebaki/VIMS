@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 const kPrimaryColor = Color(0xFFFF7643);
 const kPrimaryLightColor = Color(0xFFFFECDF);
@@ -19,6 +20,7 @@ final RegExp emailValidatorRegExp =
 const String kEmailNullError = "Please enter your email";
 const String kInvalidEmailError = "Please enter valid email";
 const String kPassNullError = "Please enter your password";
+const String kRepassNullError = "Confirm your password";
 const String kShortPassError = "Password is too short";
 const String kLongPassError = "Password is too long";
 const String kShortphoneError = "Phone number  must be 10 digits";
@@ -29,6 +31,8 @@ const String kNamelShortError = "Name must be minimum of 3 characters";
 const String kNamelLognError = "Name must be maximum of 50 characters";
 const String kPhoneNumberNullError = "Please enter your phone number";
 const String kAddressNullError = "Please enter your address";
+const String Kloading = "Loading...";
+const String KotpError = "Please enter the otp code";
 
 final otpInputDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(vertical: 15),
@@ -44,6 +48,13 @@ OutlineInputBorder outlineInputBorder() {
   );
 }
 
-void showSnackBar(BuildContext context, String text) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+void showSnackBar(String text) {
+  Get.rawSnackbar(
+    messageText: Text(
+      text,
+      style: TextStyle(color: Colors.white),
+    ),
+    snackStyle: SnackStyle.FLOATING,
+    backgroundColor: kPrimaryColor,
+  );
 }

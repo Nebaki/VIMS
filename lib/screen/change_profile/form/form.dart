@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import 'package:mob_app/controller/change_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';
@@ -42,7 +43,8 @@ class _change_profile_formState extends State<change_profile_form> {
       _name = profileData.getString('name')!;
       _email = profileData.getString('email')!;
       _phone = profileData.getString('phone')!;
-      change_prof.phoneController.text = _phone;
+      change_prof.phoneController.text =
+          _phone.startsWith('+251') ? _phone.replaceFirst('+251', '0') : _phone;
       change_prof.fullNameController.text = _name;
       change_prof.emailController.text = _email;
     });
@@ -85,28 +87,9 @@ class _change_profile_formState extends State<change_profile_form> {
                     change_prof.change_profile(context: context);
                   }
                 },
-                child: Obx(
-                  () => change_prof.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                )),
+                child: Obx(() => change_prof.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
           ),
         ],
       ),
@@ -116,11 +99,18 @@ class _change_profile_formState extends State<change_profile_form> {
   TextFormField buildEmailFormField() {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       onSaved: (newValue) => email = newValue,
       controller: change_prof.emailController,
+      validator: (value) {
+        if (value!.isNotEmpty) {
+          if (!emailValidatorRegExp.hasMatch(value)) return kInvalidEmailError;
+        }
+        return null;
+      },
       decoration: InputDecoration(
           labelText: "Email",
-          hintText: "Neba@gmail.com",
+          hintText: "Enter your Email",
           suffixIcon: const CustomSurffixIcon(
             svgIcon: "assets/icons/Mail.svg",
             color: kPrimaryColor,
@@ -146,6 +136,7 @@ class _change_profile_formState extends State<change_profile_form> {
         }
         return null;
       },
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: change_prof.fullNameController,
       decoration: InputDecoration(
           labelText: "Full Name",
@@ -168,18 +159,16 @@ class _change_profile_formState extends State<change_profile_form> {
         onSaved: (newValue) => phone = newValue,
         validator: (value) {
           if (value!.isEmpty) {
-            KeyboardUtil.hideKeyboard(context);
             return kPhoneNumberNullError;
           } else if (value.length < 10) {
-            KeyboardUtil.hideKeyboard(context);
             return kShortphoneError;
           } else if (value.length > 13) {
-            KeyboardUtil.hideKeyboard(context);
             return kLongphoneError;
           }
-          KeyboardUtil.hideKeyboard(context);
           return null;
         },
+        maxLength: 10,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         controller: change_prof.phoneController,
         decoration: InputDecoration(
             labelText: "phone number",

@@ -22,7 +22,7 @@ class _Verify_phone_screenState extends State<Verify_phone_screen> {
             appBar: AppBar(
               centerTitle: true,
               title: const Text(
-                "Verifing phone",
+                "Verification",
                 textAlign: TextAlign.end,
               ),
             ),
@@ -46,7 +46,7 @@ class _Verify_phone_screenState extends State<Verify_phone_screen> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          "You have to be verified before register!",
+                          "We need to verify your phone before registration!",
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 20),

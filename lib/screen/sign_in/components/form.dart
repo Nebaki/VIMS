@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import 'package:mob_app/controller/auth/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';
@@ -42,9 +43,9 @@ class _SignFormState extends State<SignForm> {
       child: Column(
         children: [
           buildPhoneFormField(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           buildPasswordFormField(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           Row(
             children: [
               SizedBox(
@@ -97,28 +98,9 @@ class _SignFormState extends State<SignForm> {
                     loginController.signInUser(context: context);
                   }
                 },
-                child: Obx(
-                  () => loginController.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
-                )),
+                child: Obx(() => loginController.isLoading.value
+                    ? LoadingButton()
+                    : ContinueButton())),
           ),
         ],
       ),
@@ -157,10 +139,6 @@ class _SignFormState extends State<SignForm> {
         phone.startsWith('+251')
             ? replaced = phone.replaceFirst('+251', "0")
             : replaced = phone;
-
-        // LoginphoneController.text.startsWith('0')
-        // ? replacedPhone = LoginphoneController.text.replaceFirst('0', '+251')
-        // : replacedPhone = LoginphoneController.text;
 
         phoneController.text = replaced;
         passController.text = pass;

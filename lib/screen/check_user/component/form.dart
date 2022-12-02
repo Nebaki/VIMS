@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/Componets/Custom_Icons.dart';
+import 'package:mob_app/componets/loading_button.dart';
 import '../../../Componets/no_account_text.dart';
 import '../../../constants/constants.dart';
-import '../../../controller/check_user.dart';
+import '../../../controller/verify_user/verify_user.dart';
 import '../../../helper/keyboard.dart';
 
 class CheckUserForm extends StatefulWidget {
@@ -54,10 +54,7 @@ class _CheckUserFormState extends State<CheckUserForm> {
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 20),
           SizedBox(
               width: double.infinity,
               height: 56,
@@ -77,25 +74,8 @@ class _CheckUserFormState extends State<CheckUserForm> {
                 },
                 child: Obx(
                   () => CheckUserController.isLoading.value
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text("Loading"),
-                            SizedBox(
-                              height: 30,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          "Continue",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
-                        ),
+                      ? LoadingButton()
+                      : ContinueButton(),
                 ),
               )),
           const SizedBox(height: 10),

@@ -15,18 +15,21 @@ void httpErrorHandle({
       onSucess();
       break;
     case 404:
-      showSnackBar(context, "Server error");
+      showSnackBar("Server error");
       break;
     case 401:
-      showSnackBar(context, "Invalid phone\/password");
+      showSnackBar("Invalid phone\/password");
       break;
     case 400:
-      showSnackBar(context, "Old Password is incorrect");
+      showSnackBar("Old Password is incorrect");
       break;
-      case 422:
-      showSnackBar(context, "User already exist!");
+    case 422:
+      showSnackBar("Error!");
+      break;
+    case 500:
+      showSnackBar("User exist in this profile!");
       break;
     default:
-      showSnackBar(context, response.statusCode.toString());
+      showSnackBar(response.body);
   }
 }

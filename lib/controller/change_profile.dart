@@ -47,10 +47,11 @@ class ChangeProfileController extends GetxController {
             await prefs.setString('email', data['data']['email']);
             await prefs.setString('phone', data['data']['phone']);
             Get.offNamed("/profile");
-            showSnackBar(context, "profile is changed Successfully");
+            showSnackBar("profile is changed Successfully");
           });
       isLoading.value = false;
     } catch (e) {
+      isLoading.value = false;
       print(e.toString());
     }
   }

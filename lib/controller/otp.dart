@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../screen/otp/otp.dart';
+import 'package:mob_app/constants/constants.dart';
 
 class OtpController extends GetxController {
   var authstate = "".obs;
   var isLoading = false.obs;
+  var isLoadingotp = false.obs;
   String verificationId = '';
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -16,18 +18,27 @@ class OtpController extends GetxController {
       phone.startsWith('0')
           ? replacedPhone = phone.replaceFirst('0', '+251')
           : replacedPhone = phone;
+      verificationComplete(PhoneAuthCredential credential) async {
+        await auth.signInWithCredential(credential).then((value) async {
+          if (value.user != null) {
+            isLoadingotp.value = false;
+          } else {
+            isLoadingotp.value = false;
+            showSnackBar("Failed!!" + "verificationCompleted");
+          }
+        }).catchError((e) {
+          isLoadingotp.value = false;
+          showSnackBar("Please try again!");
+        });
+      }
 
       await auth.verifyPhoneNumber(
         phoneNumber: replacedPhone,
         timeout: Duration(seconds: 40),
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          print(credential);
-          print(replacedPhone + '@@@@@@@@@@@');
-          Get.to(() => OtpScreen());
-        },
+        verificationCompleted: verificationComplete,
         verificationFailed: (FirebaseAuthException e) {
           if (e.code == 'invalid-phone-number') {
-            print('The provided phone number is not valid.');
+            showSnackBar("The provided phone number is not valid.");
           }
           isLoading.value = false;
         },
@@ -35,27 +46,28 @@ class OtpController extends GetxController {
           this.verificationId = id;
           authstate.value = "otp sent";
         },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          
-        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
-      print(e.toString());
+      isLoading.value = false;
+      showSnackBar("Please try again!");
     }
   }
 
   verifyOtp(String otp) async {
     try {
+      isLoadingotp.value = true;
       var credential = await auth.signInWithCredential(
           PhoneAuthProvider.credential(
               verificationId: this.verificationId, smsCode: otp));
 
-      // print("@@@@@@@@@@@@@@" + credential.toString());
       if (credential.user != null) {
         Get.toNamed("/forgot_pass");
+        isLoadingotp.value = false;
       }
     } catch (e) {
-      print(e.toString());
+      isLoadingotp.value = false;
+      showSnackBar("Please try again!");
     }
   }
 }

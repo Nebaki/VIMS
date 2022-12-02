@@ -37,7 +37,7 @@ class _SigninState extends State<Signin> {
                         height: 40,
                       ),
                       const Text(
-                        "Welcome Back",
+                        "VIMS",
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 28,

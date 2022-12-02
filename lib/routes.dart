@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:mob_app/screen/check_user/check_user.dart';
-import 'package:mob_app/screen/my_work_order/my_work_order.dart';
+import 'package:mob_app/screen/current_work_order/current_work_order.dart.dart';
+import 'package:mob_app/screen/current_work_order/list_of_vehicle/vehicle.dart';
+import 'package:mob_app/screen/work_order_history/list_of_vehicle/vehicleList.dart';
 import 'package:mob_app/screen/splash/splash.dart';
 import 'package:mob_app/screen/test.dart';
 import 'screen/change_password/change_password.dart';
@@ -25,11 +27,15 @@ class AppPages {
     GetPage(name: '/check_user', page: () => CheckUser()),
     GetPage(name: '/forgot_pass', page: () => ForgotPass()),
     GetPage(name: '/otp', page: () => OtpScreen()),
-    GetPage(name: '/change_pass', page: () =>  Change_pass()),
+    GetPage(name: '/change_pass', page: () => Change_pass()),
     GetPage(name: '/update_profile', page: () => const change_profile()),
-    GetPage(name: '/profile', page: () =>  profileView()),
-    GetPage(name: '/verify_phone', page: () =>  Verify_phone_screen()),
-    GetPage(name: '/test', page: () =>  Test()),
-    GetPage(name: "/currentWorkOrder", page:()=> Current_work_order())
+    GetPage(name: '/profile', page: () => profileView()),
+    GetPage(name: '/verify_phone', page: () => Verify_phone_screen()),
+    GetPage(name: '/test', page: () => Test()),
+    GetPage(name: "/currentWorkOrder", page: () => current_work_order()),
+    GetPage(name: "/vehicleList", page: () => VehicleList()),
+    GetPage(
+        name: "/vehicleListForCurrentWorkorder",
+        page: () => VehicleListOCurrentWorkOrder())
   ];
 }
