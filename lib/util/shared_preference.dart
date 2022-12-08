@@ -13,3 +13,4 @@ Future<bool> log_out() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   return prefs.remove("token");
 }
+

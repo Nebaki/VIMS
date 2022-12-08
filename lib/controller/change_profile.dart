@@ -31,24 +31,37 @@ class ChangeProfileController extends GetxController {
       Map body = {
         "email": emailController.text,
         "name": fullNameController.text,
-        "phone": phoneController.text,
       };
-      print(body);
+
       var res = await http.post(url,
           body: body,
           headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
-      httpErrorHandle(
-          response: res,
-          context: context,
-          onSucess: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            var data = jsonDecode(res.body.toString());
-            await prefs.setString('name', data['data']['name']);
-            await prefs.setString('email', data['data']['email']);
-            await prefs.setString('phone', data['data']['phone']);
-            Get.offNamed("/profile");
-            showSnackBar("profile is changed Successfully");
-          });
+      print(res.body);
+
+      if (res.statusCode == 200) {
+        print("test");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var data = jsonDecode(res.body.toString());
+        await prefs.setString('name', data['data']['name']);
+        await prefs.setString('email', data['data']['email']);
+        Get.offNamed("/profile");
+        showSnackBar("profile is changed Successfully");
+      } else if (res.statusCode == 401) {
+        var url = Uri.parse(
+            ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+      }
+      // httpErrorHandle(
+      //     response: res,
+      //     context: context,
+      //     onSucess: () async {
+      //       SharedPreferences prefs = await SharedPreferences.getInstance();
+      //       var data = jsonDecode(res.body.toString());
+      //       await prefs.setString('name', data['data']['name']);
+      //       await prefs.setString('email', data['data']['email']);
+      //       await prefs.setString('phone', data['data']['phone']);
+      //       Get.offNamed("/profile");
+      //       showSnackBar("profile is changed Successfully");
+      //     });
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/controller/auth/auth.dart';
 import 'package:mob_app/controller/reset_pass.dart';
 import 'package:mob_app/util/no_internet.dart';
+import 'package:provider/provider.dart';
+import '../../Componets/Custom_Icons.dart';
 import '../../componets/loading_button.dart';
 import '../../constants/constants.dart';
-import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../helper/keyboard.dart';
+import '../../provider/connectivity_provider.dart';
 import '../../util/themes.dart';
 
 class ForgotPass extends StatefulWidget {
@@ -17,6 +20,11 @@ class ForgotPass extends StatefulWidget {
 
 class _ForgotPassState extends State<ForgotPass> {
   ResetPassController respass = Get.put(ResetPassController());
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
+  }
 
   void signInUser() {
     respass.Reset(
@@ -24,78 +32,86 @@ class _ForgotPassState extends State<ForgotPass> {
     );
   }
 
-  ConnectionManagerController _controller =
-      Get.put(ConnectionManagerController());
   @override
   Widget build(BuildContext context) {
-    return Obx(() => _controller.connectionType.value == 1 ||
-            _controller.connectionType.value == 2
-        ? Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: const Text(
-                "Reset password",
-                textAlign: TextAlign.end,
-              ),
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text(
+              "Reset password",
+              textAlign: TextAlign.end,
             ),
-            body: SizedBox(
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: const [
-                        SizedBox(
-                          height: 50,
+          ),
+          body: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: const [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Text(
+                        "Reset Password",
+                        style: TextStyle(
+                          fontSize: 28,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          "Reset Password",
-                          style: TextStyle(
-                            fontSize: 28,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        ForgotPassForm(),
-                      ],
-                    ),
+                      ),
+                      ForgotPassForm(),
+                      SizedBox(height: 10),
+                    ],
                   ),
-                )),
-          )
-        : NoInternet());
+                ),
+              )),
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
 }
 
 class ForgotPassForm extends StatefulWidget {
   const ForgotPassForm({super.key});
-
   @override
-  State<ForgotPassForm> createState() => _ForgotPassFormState();
+  _ForgotPassFormState createState() => _ForgotPassFormState();
 }
 
 class _ForgotPassFormState extends State<ForgotPassForm> {
-  String? phone;
-  String? password;
-  String? confirm_password;
-  bool _isloading = false;
+  final _formKey = GlobalKey<FormState>();
+
+  String password = "";
+  String? conform_password;
+
+  ResetPassController resetpass = Get.put(ResetPassController());
 
   bool _passwordVisible = false;
   bool _RepasswordVisible = false;
+  bool _isloading = false;
+  void initState() {
+    _passwordVisible = false;
+    _RepasswordVisible = false;
 
-  ResetPassController resetpass = Get.put(ResetPassController());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-
     return Form(
       key: _formKey,
       child: Column(
         children: [
+          const SizedBox(height: 10),
           buildPasswordFormField(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           buildConformPassFormField(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -118,7 +134,6 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
                 },
                 child: _isloading ? LoadingButton() : ContinueButton()),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
@@ -131,10 +146,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
       obscureText: !_passwordVisible,
       controller: resetpass.passController,
       onSaved: (newValue) {
-        resetpass.passController.text = newValue!;
-      },
-      onChanged: (value) {
-        resetpass.passController.text = value;
+        password = newValue!;
       },
       validator: (value) {
         if (value!.isEmpty) {
@@ -151,16 +163,16 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
       decoration: InputDecoration(
         labelText: "Password",
         hintText: "Enter your password",
-        // suffixIcon: IconButton(
-        //   icon: Icon(
-        //     _passwordVisible ? Icons.visibility : Icons.visibility_off,
-        //   ),
-        //   onPressed: () {
-        //     setState(() {
-        //       _passwordVisible = !_passwordVisible;
-        //     });
-        //   },
-        // ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          onPressed: () {
+            setState(() {
+              _passwordVisible = !_passwordVisible;
+            });
+          },
+        ),
         border: inputDecorationTheme().border,
         enabledBorder: inputDecorationTheme().enabledBorder,
         focusedBorder: inputDecorationTheme().focusedBorder,
@@ -175,31 +187,31 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
       obscureText: !_RepasswordVisible,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       maxLength: 25,
-      onSaved: (newValue) => confirm_password = newValue,
+      onSaved: (newValue) => conform_password = newValue,
       onChanged: (value) {
-        confirm_password = value;
+        conform_password = value;
       },
       validator: (value) {
-        if (resetpass.passController.text != confirm_password) {
+        if (resetpass.passController.text != value) {
           return kMatchPassError;
-        } else if (resetpass.passController.text.isEmpty) {
-          return kRepassNullError;
+        } else if (value!.isEmpty) {
+          return kPassNullError;
         }
         return null;
       },
       decoration: InputDecoration(
           labelText: "Confirm password",
-          hintText: "Enter your confirm password",
-          // suffixIcon: IconButton(
-          //   icon: Icon(
-          //     _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
-          //   ),
-          //   onPressed: () {
-          //     setState(() {
-          //       _RepasswordVisible = !_RepasswordVisible;
-          //     });
-          //   },
-          // ),
+          hintText: "Confirm your password",
+          suffixIcon: IconButton(
+            icon: Icon(
+              _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: () {
+              setState(() {
+                _RepasswordVisible = !_RepasswordVisible;
+              });
+            },
+          ),
           border: inputDecorationTheme().border,
           enabledBorder: inputDecorationTheme().enabledBorder,
           focusedBorder: inputDecorationTheme().focusedBorder,

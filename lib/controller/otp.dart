@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/constants/constants.dart';
 
@@ -28,7 +27,7 @@ class OtpController extends GetxController {
           }
         }).catchError((e) {
           isLoadingotp.value = false;
-          showSnackBar("Please try again!");
+          showSnackBar("Please try again later! neba ");
         });
       }
 
@@ -50,7 +49,7 @@ class OtpController extends GetxController {
       );
     } catch (e) {
       isLoading.value = false;
-      showSnackBar("Please try again!");
+      showSnackBar("please try again later!");
     }
   }
 
@@ -65,9 +64,9 @@ class OtpController extends GetxController {
         Get.toNamed("/forgot_pass");
         isLoadingotp.value = false;
       }
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       isLoadingotp.value = false;
-      showSnackBar("Please try again!");
+      showSnackBar(e.message.toString());
     }
   }
 }

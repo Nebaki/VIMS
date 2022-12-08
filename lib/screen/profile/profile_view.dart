@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 import 'package:mob_app/componets/custome_text.dart';
 import 'package:mob_app/screen/drawer/drawer.dart';
 import 'package:mob_app/util/no_internet.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/constants.dart';
 import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../controller/work_order_history/work_order_history.dart';
+import '../../provider/connectivity_provider.dart';
 
 class profileView extends StatefulWidget {
   profileView({super.key});
@@ -25,6 +27,7 @@ class _profileViewState extends State<profileView> {
   @override
   void initState() {
     initial();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     super.initState();
   }
 
@@ -38,209 +41,205 @@ class _profileViewState extends State<profileView> {
     });
   }
 
-  ConnectionManagerController _controller =
-      Get.put(ConnectionManagerController());
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() => _controller.connectionType.value == 1 ||
-            _controller.connectionType.value == 2
-        ? Scaffold(
-            appBar: AppBar(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                elevation: 0,
-                centerTitle: true,
-                title: Custome_text(
-                  text: "Profile view",
-                )),
-            drawer: drawer(),
-            body: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: GestureDetector(
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                },
-                child: ListView(
-                  children: [
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 130,
-                            height: 130,
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 4,
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor),
-                                boxShadow: [
-                                  BoxShadow(
-                                      spreadRadius: 2,
-                                      blurRadius: 10,
-                                      color: Colors.black.withOpacity(0.1),
-                                      offset: const Offset(0, 10))
-                                ],
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image:
-                                        AssetImage("assets/images/ava.jpg"))),
-                          ),
-                          Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    width: 4,
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                  ),
-                                  color: kPrimaryColor,
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                ),
-                              )),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 35,
-                    ),
-                    const Text(
-                      "",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Text(
-                      "",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 28.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Name:",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(
-                                name,
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Email:",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(email, style: TextStyle(fontSize: 24)),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Phone:",
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text(phone, style: TextStyle(fontSize: 24)),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 55,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return Scaffold(
+          appBar: AppBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              centerTitle: true,
+              title: Custome_text(
+                text: "Profile view",
+              )),
+          drawer: drawer(),
+          body: Container(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: ListView(
+                children: [
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Center(
+                    child: Stack(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () => Get.toNamed("/update_profile"),
-                            style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              elevation: 16,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              backgroundColor: Colors.white,
-                            ),
-                            child: const Text(
-                              "Update profile",
+                        Container(
+                          width: 130,
+                          height: 130,
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  width: 4,
+                                  color: Theme.of(context)
+                                      .scaffoldBackgroundColor),
+                              boxShadow: [
+                                BoxShadow(
+                                    spreadRadius: 2,
+                                    blurRadius: 10,
+                                    color: Colors.black.withOpacity(0.1),
+                                    offset: const Offset(0, 10))
+                              ],
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: AssetImage("assets/images/ava.jpg"))),
+                        ),
+                        Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  width: 4,
+                                  color:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                ),
+                                color: kPrimaryColor,
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 35,
+                  ),
+                  const Text(
+                    "",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Text(
+                    "",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 28.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Name:",
                               style: TextStyle(
-                                  fontSize: 14,
-                                  letterSpacing: 2.2,
-                                  color: Colors.black),
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              name,
+                              style: TextStyle(fontSize: 24),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "Email:",
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(email, style: TextStyle(fontSize: 24)),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "Phone:",
+                              style: TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(phone, style: TextStyle(fontSize: 24)),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 55,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () => Get.toNamed("/update_profile"),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            elevation: 16,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            "Update profile",
+                            style: TextStyle(
+                                fontSize: 14,
+                                letterSpacing: 2.2,
+                                color: Colors.black),
                           ),
                         ),
-                        Center(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Get.toNamed("/change_pass");
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              elevation: 12,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              backgroundColor: kPrimaryColor,
-                            ),
-                            child: const Text(
-                              "Change password",
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  letterSpacing: 2.2,
-                                  color: Colors.white),
-                            ),
+                      ),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed("/change_pass");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            elevation: 12,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            backgroundColor: kPrimaryColor,
                           ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+                          child: const Text(
+                            "Change password",
+                            style: TextStyle(
+                                fontSize: 14,
+                                letterSpacing: 2.2,
+                                color: Colors.white),
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                ],
               ),
             ),
-          )
-        : NoInternet());
+          ),
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
 }

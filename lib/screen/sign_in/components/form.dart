@@ -210,7 +210,6 @@ class _SignFormState extends State<SignForm> {
         return null;
       },
       controller: phoneController,
-      //  loginController.phoneController,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),

@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/util/no_internet.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../controller/connection_checker/connection_manager_controller.dart';
+import '../../provider/connectivity_provider.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -19,6 +21,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     startTimer();
   }
 
@@ -45,26 +48,28 @@ class _SplashState extends State<Splash> {
     }
   }
 
-   ConnectionManagerController _controller =Get.put(ConnectionManagerController());
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() => _controller.connectionType.value == 1 ||
-            _controller.connectionType.value == 2
-        ? Scaffold(
-            appBar: AppBar(
-              elevation: 0,
-            ),
-            body: Center(
-              child: SizedBox(
-                child: Image.asset(
-                  'assets/images/sp1.png',
-                  height: 265,
-                  width: 200,
-                ),
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 0,
+          ),
+          body: Center(
+            child: SizedBox(
+              child: Image.asset(
+                'assets/images/sp1.png',
+                height: 265,
+                width: 200,
               ),
             ),
-          )
-        : NoInternet());
+          ),
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
 }

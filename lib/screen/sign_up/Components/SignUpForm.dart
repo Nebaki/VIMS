@@ -26,25 +26,11 @@ class _SignUpFormState extends State<SignUpForm> {
 
   AuthController registrationController = Get.put(AuthController());
 
-  var items = [
-    'company',
-    'individual',
-  ];
-  var loading = Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: const <Widget>[
-      CircularProgressIndicator(),
-      Text(" Registering ... Please wait")
-    ],
-  );
-
-  String? selectedRole;
-  String? Role;
   bool _passwordVisible = false;
   bool _RepasswordVisible = false;
   void initState() {
-    _passwordVisible = false;
-    _RepasswordVisible = false;
+    // _passwordVisible = false;
+    // _RepasswordVisible = false;
     setpassAndrepass();
 
     super.initState();
@@ -234,7 +220,7 @@ class _SignUpFormState extends State<SignUpForm> {
       },
       decoration: InputDecoration(
           labelText: "Confirm password",
-          hintText: "Re-enter your password",
+          hintText: "Confirm your password",
           suffixIcon: IconButton(
             icon: Icon(
               _RepasswordVisible ? Icons.visibility : Icons.visibility_off,
