@@ -18,24 +18,24 @@ class drawer extends StatelessWidget {
           const ProfilePic(),
           const SizedBox(height: 20),
           ProfileMenu(
-              text: "My Account",
-              icon: "assets/icons/User Icon.svg",
-              press: () => Get.toNamed("/profile")),
-          ProfileMenu(
-            text: "Active work order",
-            icon: "assets/icons/receipt.svg",
+            text: "Home",
+            icon: "assets/icons/home.svg",
             press: () => Get.offAndToNamed("/vehicleListForCurrentWorkorder"),
           ),
           ProfileMenu(
             text: "Work order history",
-            icon: "assets/icons/Settings.svg",
+            icon: "assets/icons/history.svg",
             press: () => Get.offAndToNamed("/vehicleList"),
           ),
+          // ProfileMenu(
+          //   text: "About",
+          //   icon: "assets/icons/Question mark.svg",
+          //   press: () {},
+          // ),
           ProfileMenu(
-            text: "About",
-            icon: "assets/icons/Question mark.svg",
-            press: () {},
-          ),
+              text: "My Account",
+              icon: "assets/icons/User Icon.svg",
+              press: () => Get.toNamed("/profile")),
           ProfileMenu(
             text: "Log Out",
             icon: "assets/icons/Log out.svg",

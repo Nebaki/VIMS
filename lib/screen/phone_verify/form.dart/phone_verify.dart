@@ -7,7 +7,6 @@ import '../../../constants/constants.dart';
 import '../../../controller/phone_verify/check_phone.dart';
 import '../../../controller/phone_verify/phone_verify.dart';
 import '../../../helper/keyboard.dart';
-import 'otp_checker.dart';
 
 class phone_verify_Form extends StatefulWidget {
   const phone_verify_Form({super.key});

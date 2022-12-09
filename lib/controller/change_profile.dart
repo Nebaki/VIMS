@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
-import '../constants/error_handling.dart';
 import '../util/api_endpoints.dart';
 
 class ChangeProfileController extends GetxController {
@@ -31,24 +30,50 @@ class ChangeProfileController extends GetxController {
       Map body = {
         "email": emailController.text,
         "name": fullNameController.text,
-        "phone": phoneController.text,
       };
-      print(body);
+
       var res = await http.post(url,
           body: body,
           headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
-      httpErrorHandle(
-          response: res,
-          context: context,
-          onSucess: () async {
+      print(res.body);
+
+      if (res.statusCode == 200) {
+        print("test");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var data = jsonDecode(res.body.toString());
+        await prefs.setString('name', data['data']['name']);
+        await prefs.setString('email', data['data']['email']);
+        Get.offNamed("/profile");
+        showSnackBar("profile is changed Successfully");
+      } else if (res.statusCode == 401) {
+        var url_ = Uri.parse(
+            ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+        var res_ = await http.post(url_,
+            headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
+        var data = json.decode(res_.body)["data"];
+        if (res_.statusCode == 200) {
+          token = data["access_token"];
+          var url = Uri.parse(
+              ApiEndPoints.baseurl + ApiEndPoints.authendpoints.change_profile);
+
+          Map body = {
+            "email": emailController.text,
+            "name": fullNameController.text,
+          };
+
+          var response = await http.post(url,
+              body: body,
+              headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
+          if (response.statusCode == 200) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             var data = jsonDecode(res.body.toString());
             await prefs.setString('name', data['data']['name']);
             await prefs.setString('email', data['data']['email']);
-            await prefs.setString('phone', data['data']['phone']);
             Get.offNamed("/profile");
             showSnackBar("profile is changed Successfully");
-          });
+          }
+        }
+      }
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;

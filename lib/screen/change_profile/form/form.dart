@@ -19,7 +19,6 @@ class _change_profile_formState extends State<change_profile_form> {
   final _formKey = GlobalKey<FormState>();
   String? name;
   String? phone;
-  String _phone = '';
   String _name = '';
   String _email = '';
   String? email;
@@ -42,9 +41,6 @@ class _change_profile_formState extends State<change_profile_form> {
     setState(() {
       _name = profileData.getString('name')!;
       _email = profileData.getString('email')!;
-      _phone = profileData.getString('phone')!;
-      change_prof.phoneController.text =
-          _phone.startsWith('+251') ? _phone.replaceFirst('+251', '0') : _phone;
       change_prof.fullNameController.text = _name;
       change_prof.emailController.text = _email;
     });
@@ -67,8 +63,6 @@ class _change_profile_formState extends State<change_profile_form> {
           const SizedBox(height: 20),
           buildEmailFormField(),
           const SizedBox(height: 20),
-          buildPhoneNumberFormField(),
-          const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -83,7 +77,7 @@ class _change_profile_formState extends State<change_profile_form> {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     KeyboardUtil.hideKeyboard(context);
-                    setState(() {});
+                   
                     change_prof.change_profile(context: context);
                   }
                 },
@@ -151,37 +145,5 @@ class _change_profile_formState extends State<change_profile_form> {
           contentPadding: inputDecorationTheme().contentPadding,
           floatingLabelBehavior: inputDecorationTheme().floatingLabelBehavior),
     );
-  }
-
-  TextFormField buildPhoneNumberFormField() {
-    return TextFormField(
-        keyboardType: TextInputType.phone,
-        onSaved: (newValue) => phone = newValue,
-        validator: (value) {
-          if (value!.isEmpty) {
-            return kPhoneNumberNullError;
-          } else if (value.length < 10) {
-            return kShortphoneError;
-          } else if (value.length > 13) {
-            return kLongphoneError;
-          }
-          return null;
-        },
-        maxLength: 10,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        controller: change_prof.phoneController,
-        decoration: InputDecoration(
-            labelText: "phone number",
-            hintText: "Enter your phone number",
-            suffixIcon: const CustomSurffixIcon(
-              svgIcon: "assets/icons/Phone.svg",
-              color: kPrimaryColor,
-            ),
-            border: inputDecorationTheme().border,
-            enabledBorder: inputDecorationTheme().enabledBorder,
-            focusedBorder: inputDecorationTheme().focusedBorder,
-            contentPadding: inputDecorationTheme().contentPadding,
-            floatingLabelBehavior:
-                inputDecorationTheme().floatingLabelBehavior));
   }
 }

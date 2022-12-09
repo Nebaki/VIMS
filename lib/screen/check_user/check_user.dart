@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:mob_app/util/no_internet.dart';
-import '../../controller/connection_checker/connection_manager_controller.dart';
+import 'package:provider/provider.dart';
+import '../../provider/connectivity_provider.dart';
 import 'component/form.dart';
 
 class CheckUser extends StatefulWidget {
@@ -12,50 +12,58 @@ class CheckUser extends StatefulWidget {
 }
 
 class _CheckUserState extends State<CheckUser> {
-   ConnectionManagerController _controller =Get.put(ConnectionManagerController());
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => _controller.connectionType.value == 1 ||
-            _controller.connectionType.value == 2
-        ? Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: const Text(
-                "Forgot Password",
-                textAlign: TextAlign.end,
-              ),
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: const Text(
+              "Forgot Password",
+              textAlign: TextAlign.end,
             ),
-            body: SizedBox(
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: const [
-                        SizedBox(
-                          height: 50,
+          ),
+          body: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: const [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Text(
+                        "Phone Number",
+                        style: TextStyle(
+                          fontSize: 28,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          "Phone Number",
-                          style: TextStyle(
-                            fontSize: 28,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "Tell us your phone and relax",
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 20),
-                        CheckUserForm(),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        "Tell us your phone and relax",
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 20),
+                      CheckUserForm(),
+                    ],
                   ),
-                )),
-          )
-        : NoInternet());
+                ),
+              )),
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
 }

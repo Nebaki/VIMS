@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +27,7 @@ class AuthController extends GetxController {
   String? role;
   CheckPhoneController checkphone = Get.put(CheckPhoneController());
   late String replacedPhone = '';
+  late String FcmToken = '';
 
   Future<void> signInUser({
     required BuildContext context,
@@ -72,6 +74,12 @@ class AuthController extends GetxController {
   void signUpUser({
     required BuildContext context,
   }) async {
+    late FirebaseMessaging messaging;
+    messaging = FirebaseMessaging.instance;
+    messaging.getToken().then((value) {
+      FcmToken = value!;
+      
+    });
     isLoading.value = true;
     print(checkphone.phoneController.text + "neba");
     checkphone.phoneController.text.startsWith('0')
@@ -87,6 +95,7 @@ class AuthController extends GetxController {
         "password": passController.text,
         "name": fullNameController.text,
         "phone": replacedPhone,
+        // " ": FcmToken    
       };
 
       print(body);

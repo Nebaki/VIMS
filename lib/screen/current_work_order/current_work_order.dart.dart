@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mob_app/util/no_internet.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../componets/circular_tap.dart';
 import '../../componets/custome_text.dart';
 import '../../constants/constants.dart';
 import 'package:http/http.dart' as http;
+import '../../models/work_order_for_vehicle/work_order_detail.dart';
 import '../../models/work_order_for_vehicle/work_order_for_vehicle.dart';
+import '../../provider/connectivity_provider.dart';
 import '../../util/api_endpoints.dart';
+import 'list_of_vehicle/vehicle.dart';
 
 class current_work_order extends StatefulWidget {
   current_work_order({super.key});
@@ -19,12 +23,15 @@ class current_work_order extends StatefulWidget {
 }
 
 class _current_work_orderState extends State<current_work_order> {
-  var Currentworkorder = <CurrentWorkOrderDetails>[];
+  var activeworkorder = <CurrentWorkOrderDetails>[];
+  var allWODetails = <WorkOrderDetails>[];
   var isLoading = false;
   var ID = Get.arguments;
+
   @override
   void initState() {
     fetchWorkorderhistory();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     super.initState();
   }
 
@@ -34,10 +41,10 @@ class _current_work_orderState extends State<current_work_order> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString("token") ?? "";
+
     var url = Uri.parse(
         ApiEndPoints.baseurl + ApiEndPoints.authendpoints.workOrder + ID);
-    print(url);
-    print("-----------------");
+
     var res = await http
         .get(url, headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
     try {
@@ -47,11 +54,37 @@ class _current_work_orderState extends State<current_work_order> {
             .map((e) => CurrentWorkOrderDetails.fromJson(e))
             .toList();
         print(convertedJsonData);
-        Currentworkorder = workordervalue;
+        activeworkorder = workordervalue;
         isLoading = false;
         setState(() {
           isLoading = false;
         });
+      } else if (res.statusCode == 401) {
+        var url_ = Uri.parse(
+            ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+        var res_ = await http.post(url_,
+            headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
+        var data = json.decode(res_.body)["data"];
+        if (res_.statusCode == 200) {
+          token = data["access_token"];
+          var url = Uri.parse(
+              ApiEndPoints.baseurl + ApiEndPoints.authendpoints.workOrder + ID);
+
+          var response = await http.get(url,
+              headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
+          if (response.statusCode == 200) {
+            var convertedJsonData = json.decode(response.body)["data"];
+            var workordervalue = (convertedJsonData as List)
+                .map((e) => CurrentWorkOrderDetails.fromJson(e))
+                .toList();
+            print(convertedJsonData);
+            activeworkorder = workordervalue;
+            isLoading = false;
+            setState(() {
+              isLoading = false;
+            });
+          }
+        }
       } else {
         return null;
       }
@@ -62,207 +95,187 @@ class _current_work_orderState extends State<current_work_order> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: isLoading
-          ? Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-          : Scaffold(
-              appBar: AppBar(
-                bottom: TabBar(
-                  labelPadding: const EdgeInsets.only(left: 20, right: 20),
-                  labelColor: Colors.black,
-                  isScrollable: true,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  indicator: CircleTabIndicator(color: kPrimaryColor, rad: 4),
-                  tabs: [
-                    Tab(
-                      child: Custome_text(
-                        text: "Work order",
-                        textstyle: TextStyle(fontSize: 16),
-                      ),
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return DefaultTabController(
+          length: 2,
+          child: isLoading
+              ? Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : Scaffold(
+                  appBar: AppBar(
+                    bottom: TabBar(
+                      labelPadding: const EdgeInsets.only(left: 20, right: 20),
+                      labelColor: Colors.black,
+                      isScrollable: true,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      indicator:
+                          CircleTabIndicator(color: kPrimaryColor, rad: 4),
+                      tabs: [
+                        Tab(
+                          child: Custome_text(
+                            text: "Work order",
+                            textstyle: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        Tab(
+                          child: Custome_text(text: "Lubrications"),
+                        ),
+                      ],
                     ),
-                    Tab(
-                      child: Custome_text(text: "Lubrications"),
+                    title: Custome_text(
+                      text: "Active work order ",
                     ),
-                  ],
-                ),
-                title: Custome_text(
-                  text: "Active work order ",
-                ),
-                centerTitle: true,
-              ),
-              body: TabBarView(children: [
-                Container(
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: Currentworkorder.length,
-                      itemBuilder: (_, index) {
-                        print(Currentworkorder.length);
-                        return Column(
+                    centerTitle: true,
+                  ),
+                  body: TabBarView(children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18.0, right: 18.0),
+                        child: Column(
                           children: [
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: ClampingScrollPhysics(),
-                              itemCount: Currentworkorder[index]
-                                  .workOrderDetails!
-                                  .length,
-                              itemBuilder: (_, index1) {
-                                return Card(
-                                  elevation: 10,
-                                  margin: new EdgeInsets.symmetric(
-                                      horizontal: 10.0, vertical: 6.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                        color: Color.fromRGBO(64, 75, 96, .9)),
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 15.0, vertical: 10.0),
-                                      title: Row(
-                                        children: [
-                                          Custome_text(text: "Failur type:"),
-                                          Text(
-                                            Currentworkorder[index1]
-                                                .workOrderDetails![index1]
-                                                .partNoDescription
-                                                .toString(),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      subtitle: Row(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 5,
-                                            child: Row(
-                                              children: [
-                                                Custome_text(text: "Status:"),
-                                                Text(
-                                                    Currentworkorder[index1]
-                                                        .workOrderDetails![
-                                                            index1]
-                                                        .status
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                              flex: 1,
-                                              child: Container(
-                                                child: LinearProgressIndicator(
-                                                    backgroundColor:
-                                                        Color.fromRGBO(
-                                                            209, 224, 224, 0.2),
-                                                    value: 0.3,
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation(
-                                                            Colors.green)),
-                                              )),
-                                        ],
-                                      ),
-                                      leading: Container(
-                                        padding: EdgeInsets.only(right: 12.0),
-                                        decoration: new BoxDecoration(
-                                            border: new Border(
-                                                right: new BorderSide(
-                                                    width: 1.0,
-                                                    color: Colors.white24))),
-                                        child: Icon(Icons.work_history_outlined,
-                                            color: Colors.white),
-                                      ),
-                                    ),
+                            IntrinsicHeight(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RowText(text: "Failur type"),
+                                  VerticalDivider(
+                                    width: 2,
                                   ),
-                                );
-                              },
-                            )
-                          ],
-                        );
-                      }),
-                ),
-                Container(
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: Currentworkorder.length,
-                      itemBuilder: (_, index) {
-                        return SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ListView.builder(
+                                  // Expanded(child: Container()),
+                                  RowText(text: "Status")
+                                ],
+                              ),
+                            ),
+                            Divider(),
+                            ListView.builder(
                                 shrinkWrap: true,
                                 physics: ClampingScrollPhysics(),
-                                itemCount: Currentworkorder[index]
-                                    .lubrications!
-                                    .length,
-                                itemBuilder: (_, index1) {
-                                  return Card(
-                                    elevation: 10,
-                                    margin: new EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 6.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                          color:
-                                              Color.fromRGBO(64, 75, 96, .9)),
-                                      child: ListTile(
-                                        title: Row(
+                                itemCount: activeworkorder.length,
+                                itemBuilder: (context, index) {
+                                  return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: ClampingScrollPhysics(),
+                                      itemCount: activeworkorder[index]
+                                          .workOrderDetails!
+                                          .length,
+                                      itemBuilder: (context, index1) {
+                                        return Column(
                                           children: [
-                                            Custome_text(text: "Oil type:"),
-                                            Text(
-                                              Currentworkorder[index]
-                                                  .lubrications![index1]
-                                                  .oilType
-                                                  .toString(),
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        subtitle: Row(
-                                          children: <Widget>[
-                                            Expanded(
-                                              flex: 5,
+                                            IntrinsicHeight(
                                               child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
                                                 children: [
-                                                  Custome_text(
-                                                      text: "Quantity:"),
-                                                  Text(
-                                                      Currentworkorder[index]
-                                                          .lubrications![index1]
-                                                          .quantity
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                          color: Colors.white)),
+                                                  ColumnText(
+                                                    text: activeworkorder[index]
+                                                        .workOrderDetails![
+                                                            index1]
+                                                        .partNoDescription
+                                                        .toString(),
+                                                  ),
+                                                  ColumnText(
+                                                      text: activeworkorder[
+                                                              index]
+                                                          .workOrderDetails![
+                                                              index1]
+                                                          .status
+                                                          .toString()),
                                                 ],
                                               ),
                                             ),
+                                            Divider(),
                                           ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              )
-                            ],
-                          ),
-                        );
-                      }),
+                                        );
+                                      });
+                                }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18.0, right: 18.0),
+                        child: Column(
+                          children: [
+                            IntrinsicHeight(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RowText(text: "Oil type"),
+                                  VerticalDivider(
+                                    width: 2,
+                                  ),
+                                  RowText(text: "Quantity")
+                                ],
+                              ),
+                            ),
+                            Divider(),
+                            ListView.builder(
+                                shrinkWrap: true,
+                                physics: ClampingScrollPhysics(),
+                                itemCount: activeworkorder.length,
+                                itemBuilder: (context, index) {
+                                  return ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: ClampingScrollPhysics(),
+                                      itemCount: activeworkorder[index]
+                                          .lubrications!
+                                          .length,
+                                      itemBuilder: (context, index1) {
+                                        return Column(
+                                          children: [
+                                            IntrinsicHeight(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  ColumnText(
+                                                    text: activeworkorder[index]
+                                                        .lubrications![index1]
+                                                        .oilType
+                                                        .toString(),
+                                                  ),
+                                                  ColumnText(
+                                                      text: activeworkorder[
+                                                              index]
+                                                          .lubrications![index1]
+                                                          .quantity
+                                                          .toString()),
+                                                ],
+                                              ),
+                                            ),
+                                            Divider(),
+                                          ],
+                                        );
+                                      });
+                                }),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ]),
                 ),
-              ]),
-            ),
-    );
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
+}
+
+class Cells {
+  Cells(this.cells);
+  List<DataCell> cells = [];
 }

@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/componets/loading_button.dart';
-import '../../../componets/custome_textfield.dart';
 import '../../../constants/constants.dart';
 import '../../../controller/verify_user/verify_user.dart';
 import '../../../controller/otp.dart';
@@ -68,7 +67,6 @@ class _OtpFormState extends State<OtpForm> {
       final authCredential =
           await _auth.signInWithCredential(phoneAuthCredential);
 
-      if (authCredential != null) {}
     } on FirebaseAuthException catch (e) {
       showSnackBar("Please try again!");
       print(e.toString());

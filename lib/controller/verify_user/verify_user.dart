@@ -42,7 +42,6 @@ class checkuserController extends GetxController {
       var data = jsonDecode(response.body.toString());
       if (response.statusCode == 200) {
         if (data["status"] == true) {
-          print(replacedPhone);
           otp.verifyPhone(replacedPhone);
           Get.to(() => OtpScreen());
           isLoading.value = false;

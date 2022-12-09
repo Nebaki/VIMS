@@ -5,6 +5,8 @@ const kPrimaryColor = Color(0xFFFF7643);
 const kPrimaryLightColor = Color(0xFFFFECDF);
 const kSecondaryColor = Color(0xFF979797);
 const kTextColor = Color(0xFF757575);
+const KbalckColor = Colors.black;
+const KlighyBlackColor = Colors.black54;
 
 const kAnimationDuration = Duration(milliseconds: 200);
 

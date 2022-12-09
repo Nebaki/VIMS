@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:mob_app/componets/custome_text.dart';
 import 'package:mob_app/screen/drawer/drawer.dart';
 import 'package:mob_app/util/no_internet.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/constants.dart';
-import '../../controller/connection_checker/connection_manager_controller.dart';
-import '../../controller/work_order_history/work_order_history.dart';
+import '../../provider/connectivity_provider.dart';
 
 class profileView extends StatefulWidget {
   profileView({super.key});
@@ -25,6 +25,7 @@ class _profileViewState extends State<profileView> {
   @override
   void initState() {
     initial();
+    Provider.of<ConnectivityProvider>(context, listen: false).startMonitoring();
     super.initState();
   }
 
@@ -38,20 +39,23 @@ class _profileViewState extends State<profileView> {
     });
   }
 
-  ConnectionManagerController _controller =
-      Get.put(ConnectionManagerController());
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() => _controller.connectionType.value == 1 ||
-            _controller.connectionType.value == 2
-        ? Scaffold(
+    return Consumer<ConnectivityProvider>(
+        builder: (consumerContext, model, child) {
+      if (model.isOnline != null) {
+        return WillPopScope(
+          onWillPop: () {
+            Get.toNamed("/currentWorkOrder");
+            return Future.value(false);
+          },
+          child: Scaffold(
             appBar: AppBar(
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 elevation: 0,
                 centerTitle: true,
                 title: Custome_text(
-                  text: "Profile view",
+                  text: "My account",
                 )),
             drawer: drawer(),
             body: Container(
@@ -80,52 +84,20 @@ class _profileViewState extends State<profileView> {
                                   BoxShadow(
                                       spreadRadius: 2,
                                       blurRadius: 10,
-                                      color: Colors.black.withOpacity(0.1),
+                                      color: Colors.white.withOpacity(1),
                                       offset: const Offset(0, 10))
                                 ],
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
+                                    fit: BoxFit.scaleDown,
                                     image:
-                                        AssetImage("assets/images/ava.jpg"))),
+                                        AssetImage("assets/images/logo.png"))),
                           ),
-                          Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    width: 4,
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
-                                  ),
-                                  color: kPrimaryColor,
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                ),
-                              )),
                         ],
                       ),
                     ),
                     const SizedBox(
-                      height: 35,
-                    ),
-                    const Text(
-                      "",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Text(
-                      "",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                      height: 55,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 28.0),
@@ -240,7 +212,11 @@ class _profileViewState extends State<profileView> {
                 ),
               ),
             ),
-          )
-        : NoInternet());
+          ),
+        );
+      } else {
+        return NoInternet();
+      }
+    });
   }
 }
