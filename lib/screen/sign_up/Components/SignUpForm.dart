@@ -211,10 +211,10 @@ class _SignUpFormState extends State<SignUpForm> {
         conform_password = value;
       },
       validator: (value) {
-        if (password != value) {
+        if (registrationController.passController.text != value) {
           return kMatchPassError;
         } else if (value!.isEmpty) {
-          return kPassNullError;
+          return kMatchPassError;
         }
         return null;
       },

@@ -6,7 +6,6 @@ import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../provider/connectivity_provider.dart';
 
 class Splash extends StatefulWidget {
@@ -50,26 +49,19 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ConnectivityProvider>(
-        builder: (consumerContext, model, child) {
-      if (model.isOnline != null) {
-        return Scaffold(
-          appBar: AppBar(
-            elevation: 0,
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+      ),
+      body: Center(
+        child: SizedBox(
+          child: Image.asset(
+            'assets/images/logo.png',
+            height: 265,
+            width: 200,
           ),
-          body: Center(
-            child: SizedBox(
-              child: Image.asset(
-                'assets/images/sp1.png',
-                height: 265,
-                width: 200,
-              ),
-            ),
-          ),
-        );
-      } else {
-        return NoInternet();
-      }
-    });
+        ),
+      ),
+    );
   }
 }

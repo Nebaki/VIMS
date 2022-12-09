@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/screen/phone_verify/phoneverify.dart';
 
 import '../../constants/constants.dart';
 

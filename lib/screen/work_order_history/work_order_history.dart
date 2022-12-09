@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/componets/row_column_text.dart';
-import 'package:mob_app/controller/connection_checker/connection_manager_controller.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,21 +61,40 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
       });
     } else if (res.statusCode == 401) {
       print("unauthorized");
-      var url = Uri.parse(
-          ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken + ID);
-      var res = await http.get(url,
-          headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
+      var url_ = Uri.parse(
+          ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+      var res_ = await http.post(url_,
+          headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
+      var data = json.decode(res_.body)["data"];
+      print("===================");
+      print(res_.body);
+      print("@@@@@@@@@@@@@@@@" + data["access_token"]);
+      if (res_.statusCode == 200) {
+        token = data["access_token"];
+        var url = Uri.parse(ApiEndPoints.baseurl +
+            ApiEndPoints.authendpoints.workOrderHistory +
+            ID);
 
-      if (res.statusCode == 200) {
-        print("auto");
+        var response = await http.get(url,
+            headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
+        if (response.statusCode == 200) {
+          var convertedJsonData = json.decode(res_.body)["data"];
+          var workordervalue = (convertedJsonData as List)
+              .map((e) => WorkOrderHistoryModel.fromJson(e))
+              .toList();
+          if (workordervalue != null) {
+            workorder = workordervalue;
+            isLoading = false;
+          }
+          setState(() {
+            isLoading = false;
+          });
+        }
       }
     } else {
       return null;
     }
   }
-
-  ConnectionManagerController _controller =
-      Get.put(ConnectionManagerController());
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +159,7 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
                       ],
                     ),
                     title: Custome_text(
-                      text: "work order history",
+                      text: "Work order history",
                     ),
                     centerTitle: true,
                   ),
@@ -280,7 +298,7 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
                         child: Center(
                             child: Column(children: [
                           Row(children: [
-                            Text("Total_lubrication_cost",
+                            Text("Total Lubrication Cost",
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Expanded(child: Container()),
                             Custome_text(
@@ -288,7 +306,7 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
                             )
                           ]),
                           Row(children: [
-                            Text("Total_parts_cost",
+                            Text("Total Parts Cost",
                                 style: TextStyle(fontWeight: FontWeight.bold)),
                             Expanded(child: Container()),
                             Custome_text(
@@ -297,7 +315,7 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
                           ]),
                           Row(children: [
                             Text(
-                              "Total_labour_cost",
+                              "Total Labour Cost",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Expanded(child: Container()),

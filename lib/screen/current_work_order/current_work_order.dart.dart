@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/controller/connection_checker/connection_manager_controller.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,10 +41,10 @@ class _current_work_orderState extends State<current_work_order> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString("token") ?? "";
+
     var url = Uri.parse(
         ApiEndPoints.baseurl + ApiEndPoints.authendpoints.workOrder + ID);
-    print(url);
-    print("-----------------");
+
     var res = await http
         .get(url, headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
     try {
@@ -62,6 +59,32 @@ class _current_work_orderState extends State<current_work_order> {
         setState(() {
           isLoading = false;
         });
+      } else if (res.statusCode == 401) {
+        var url_ = Uri.parse(
+            ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+        var res_ = await http.post(url_,
+            headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
+        var data = json.decode(res_.body)["data"];
+        if (res_.statusCode == 200) {
+          token = data["access_token"];
+          var url = Uri.parse(
+              ApiEndPoints.baseurl + ApiEndPoints.authendpoints.workOrder + ID);
+
+          var response = await http.get(url,
+              headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
+          if (response.statusCode == 200) {
+            var convertedJsonData = json.decode(response.body)["data"];
+            var workordervalue = (convertedJsonData as List)
+                .map((e) => CurrentWorkOrderDetails.fromJson(e))
+                .toList();
+            print(convertedJsonData);
+            activeworkorder = workordervalue;
+            isLoading = false;
+            setState(() {
+              isLoading = false;
+            });
+          }
+        }
       } else {
         return null;
       }

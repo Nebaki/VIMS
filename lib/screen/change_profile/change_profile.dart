@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
-import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../provider/connectivity_provider.dart';
 import 'form/form.dart';
 
@@ -27,7 +25,7 @@ class _change_profileState extends State<change_profile> {
       if (model.isOnline != null) {
         return Scaffold(
           appBar: AppBar(
-            title: Text("update profile"),
+            title: Text("Update profile"),
             centerTitle: true,
           ),
           body: SingleChildScrollView(

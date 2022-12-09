@@ -4,7 +4,6 @@ import 'package:mob_app/controller/verify_user/verify_user.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import '../../constants/constants.dart';
-import '../../controller/connection_checker/connection_manager_controller.dart';
 import '../../provider/connectivity_provider.dart';
 import 'components/otp_form.dart';
 

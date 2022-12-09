@@ -48,14 +48,11 @@ class PhoneVerifyController extends GetxController {
           this.verificationId = id;
           authstate.value = "otp sent";
         },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          showSnackBar("timed out");
-        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
       );
     } catch (e) {
       showSnackBar("Please try again later!");
       isLoading.value = false;
-      print(e.runtimeType);
     }
   }
 
@@ -71,13 +68,6 @@ class PhoneVerifyController extends GetxController {
       }
     } on FirebaseAuthException catch (e) {
       showSnackBar(e.message.toString());
-      print('Failed with error code: ${e.code}');
-      print(e.message);
     }
-    //  catch (e) {
-    //   showSnackBar("hey there!");
-    //   isLoading.value = false;
-    //   print(e.runtimeType);
-    // }
   }
 }

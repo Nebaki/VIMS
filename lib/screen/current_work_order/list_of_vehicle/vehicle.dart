@@ -53,7 +53,7 @@ class _VehicleListState extends State<VehicleListOCurrentWorkOrder>
                       ),
                       DataColumn(
                         label: ColumnText(
-                          text: 'PlateNumber',
+                          text: 'Plate Number',
                         ),
                       ),
                       DataColumn(

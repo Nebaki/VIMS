@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mob_app/controller/connection_checker/connection_manager_controller.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import '../../provider/connectivity_provider.dart';

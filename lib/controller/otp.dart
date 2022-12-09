@@ -27,7 +27,7 @@ class OtpController extends GetxController {
           }
         }).catchError((e) {
           isLoadingotp.value = false;
-          showSnackBar("Please try again later! neba ");
+          showSnackBar("Please try again later! ");
         });
       }
 

@@ -7,7 +7,6 @@ import 'package:mob_app/util/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'constants/constants.dart';
-import 'controller/connection_checker/controller_binding.dart';
 import 'routes.dart';
 import 'provider.dart';
 
@@ -46,7 +45,6 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
       theme: theme(),
       getPages: AppPages.routes,
-      initialBinding: ControllerBinding(),
     ),
     );
 

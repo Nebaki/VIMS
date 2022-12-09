@@ -19,7 +19,6 @@ class _change_profile_formState extends State<change_profile_form> {
   final _formKey = GlobalKey<FormState>();
   String? name;
   String? phone;
-  String _phone = '';
   String _name = '';
   String _email = '';
   String? email;

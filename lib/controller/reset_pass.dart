@@ -24,6 +24,8 @@ class ResetPassController extends GetxController {
           ? replacedPhone = phone.phoneController.text.replaceFirst('0', '+251')
           : replacedPhone = phone.phoneController.text;
 
+      print("reset pass " + replacedPhone);
+
       Map body = {
         "phone": replacedPhone,
         "password": passController.text,
@@ -33,13 +35,14 @@ class ResetPassController extends GetxController {
         url,
         body: body,
       );
-      httpErrorHandle(
-          response: res,
-          context: context,
-          onSucess: () async {
-            Get.offAllNamed("/signin");
+      if (res.statusCode==200) {
+ Get.offAllNamed("/signin");
             showSnackBar("You have successfully changed your password");
-          });
+        
+      }else{var data = jsonDecode(res.body.toString());
+        showSnackBar(data["message"]);
+      }
+      
     } catch (e) {
       print(e.toString());
     }
