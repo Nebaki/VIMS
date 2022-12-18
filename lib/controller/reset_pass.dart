@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mob_app/constants/constants.dart';
 import 'package:mob_app/controller/verify_user/verify_user.dart';
-import '../constants/error_handling.dart';
 import '../util/api_endpoints.dart';
 
 class ResetPassController extends GetxController {

@@ -27,11 +27,11 @@ class drawer extends StatelessWidget {
             icon: "assets/icons/history.svg",
             press: () => Get.offAndToNamed("/vehicleList"),
           ),
-          // ProfileMenu(
-          //   text: "About",
-          //   icon: "assets/icons/Question mark.svg",
-          //   press: () {},
-          // ),
+          ProfileMenu(
+            text: "Vehicle intake items",
+            icon: "assets/icons/receipt.svg",
+            press: () => Get.offAndToNamed("/vehicleListForVeihcleIntakeItem"),
+          ),
           ProfileMenu(
               text: "My Account",
               icon: "assets/icons/User Icon.svg",

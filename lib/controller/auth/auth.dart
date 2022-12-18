@@ -138,13 +138,23 @@ class AuthController extends GetxController {
           body: body,
           headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
       print(res.body);
-      httpErrorHandle(
-          response: res,
-          context: context,
-          onSucess: () {
-            Get.offNamed("/profile");
+      if(res.statusCode == 200){
+Get.offNamed("/profile");
             showSnackBar("Password is changed Successfully");
-          });
+      }else if(res.statusCode ==401){
+         var url_ = Uri.parse(
+            ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
+        var res_ = await http.post(url_,
+            headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
+        var data = json.decode(res_.body)["data"];
+        if (res_.statusCode==200) {
+
+
+
+          
+        }
+      }
+      
       isLoading.value = false;
     } catch (e) {
       print(e.toString());

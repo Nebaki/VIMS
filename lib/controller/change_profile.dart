@@ -73,6 +73,8 @@ class ChangeProfileController extends GetxController {
             showSnackBar("profile is changed Successfully");
           }
         }
+      } else {
+        Get.offNamed("/signin");
       }
       isLoading.value = false;
     } catch (e) {

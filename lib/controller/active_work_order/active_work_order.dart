@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/constants/error_handling.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/work_order_for_vehicle/work_order_for_vehicle.dart';
 import '../../util/api_endpoints.dart';
@@ -26,7 +25,7 @@ class current_work_order_controller extends GetxController {
         print(data);
 
         current_work_order = CurrentWorkOrderDetails.fromJson(data);
-      } else if (res.statusCode == 200) {
+      } else if (res.statusCode == 401) {
         var url_ = Uri.parse(
             ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
         var res_ = await http.post(url_,
@@ -46,7 +45,7 @@ class current_work_order_controller extends GetxController {
           }
         }
       } else {
-        return null;
+        Get.offAndToNamed("/signin");
       }
     } catch (e) {
       print('Error while getting data is $e');
