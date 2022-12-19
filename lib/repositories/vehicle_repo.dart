@@ -20,6 +20,7 @@ class VehicleRepository {
           .map((e) => VehicleModel.fromJson(e))
           .toList();
     } else if (res.statusCode == 401) {
+      print("Nebak");
       var url_ = Uri.parse(
           ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
       var res_ = await http.post(url_,
