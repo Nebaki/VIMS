@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/loading_button.dart';
+import 'package:mob_app/Componets/loading_button.dart';
 import 'package:mob_app/controller/auth/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Componets/Custom_Icons.dart';

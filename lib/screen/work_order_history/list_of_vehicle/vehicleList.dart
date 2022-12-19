@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/custome_text.dart';
+import 'package:mob_app/Componets/custome_text.dart';
 import 'package:mob_app/constants/constants.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
-import '../../../componets/row_column_text.dart';
+import '../../../Componets/row_column_text.dart';
 import '../../../controller/vehicle_controller.dart';
 import '../../../provider/connectivity_provider.dart';
 import '../../drawer/drawer.dart';
