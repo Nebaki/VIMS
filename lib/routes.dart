@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
 import 'package:mob_app/screen/check_user/check_user.dart';
-import 'package:mob_app/screen/current_work_order/current_work_order.dart.dart';
-import 'package:mob_app/screen/current_work_order/list_of_vehicle/vehicle.dart';
+import 'package:mob_app/screen/active_work_order/active_work_order.dart.dart';
+import 'package:mob_app/screen/active_work_order/list_of_vehicle/vehicle.dart';
+import 'package:mob_app/screen/vehicle_intake/list_of_vehicle/vehicleList.dart';
 import 'package:mob_app/screen/work_order_history/list_of_vehicle/vehicleList.dart';
 import 'package:mob_app/screen/splash/splash.dart';
 import 'package:mob_app/screen/test.dart';
@@ -34,6 +35,9 @@ class AppPages {
     GetPage(name: '/test', page: () => Test()),
     GetPage(name: "/currentWorkOrder", page: () => current_work_order()),
     GetPage(name: "/vehicleList", page: () => VehicleList()),
+    GetPage(
+        name: "/vehicleListForVeihcleIntakeItem",
+        page: () => VehicleListIntakePart()),
     GetPage(
         name: "/vehicleListForCurrentWorkorder",
         page: () => VehicleListOCurrentWorkOrder())

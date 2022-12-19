@@ -15,6 +15,9 @@ class _VehicleIntakePartState extends State<VehicleIntakePart> {
         centerTitle: true,
         title: Text("Vehicle intake parts"),
       ),
+      body: Column(
+        children: [],
+      ),
     );
   }
 }

@@ -60,21 +60,18 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
         isLoading = false;
       });
     } else if (res.statusCode == 401) {
-      print("unauthorized");
+      
       var url_ = Uri.parse(
           ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
       var res_ = await http.post(url_,
           headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
       var data = json.decode(res_.body)["data"];
-      print("===================");
-      print(res_.body);
-      print("@@@@@@@@@@@@@@@@" + data["access_token"]);
       if (res_.statusCode == 200) {
+        print("Nebak");
         token = data["access_token"];
         var url = Uri.parse(ApiEndPoints.baseurl +
             ApiEndPoints.authendpoints.workOrderHistory +
             ID);
-
         var response = await http.get(url,
             headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
         if (response.statusCode == 200) {
@@ -179,7 +176,6 @@ class _work_order_history_screenState extends State<work_order_history_screen> {
                                   VerticalDivider(
                                     width: 2,
                                   ),
-                                  // Expanded(child: Container()),
                                   RowText(text: "Status")
                                 ],
                               ),
