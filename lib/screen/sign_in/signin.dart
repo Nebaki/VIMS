@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
-import '../../componets/no_account_text.dart';
+import '../../Componets/no_account_text.dart';
 import '../../provider/connectivity_provider.dart';
 import 'components/form.dart';
 

@@ -1,6 +1,6 @@
 import 'package:mob_app/provider/connectivity_provider.dart';
 import 'package:mob_app/screen/forgot_password/ForgotPass.dart';
-import 'package:mob_app/screen/sign_in/Signin.dart';
+import 'package:mob_app/screen/sign_in/signin.dart';
 import 'package:mob_app/screen/sign_up/Signup.dart';
 import 'package:provider/provider.dart';
 

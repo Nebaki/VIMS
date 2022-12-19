@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/custome_text.dart';
+import 'package:mob_app/Componets/custome_text.dart';
 import 'package:mob_app/constants/constants.dart';
 import '../../../controller/vehicle_controller.dart';
 import '../../drawer/drawer.dart';

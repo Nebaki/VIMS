@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/custome_text.dart';
+import 'package:mob_app/Componets/custome_text.dart';
 import 'package:mob_app/screen/drawer/drawer.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
