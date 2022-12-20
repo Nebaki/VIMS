@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/loading_button.dart';
+import 'package:mob_app/Componets/loading_button.dart';
 import '../../../constants/constants.dart';
 import '../../../controller/verify_user/verify_user.dart';
 import '../../../controller/otp.dart';

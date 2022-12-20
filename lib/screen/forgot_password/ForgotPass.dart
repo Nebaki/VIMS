@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:mob_app/controller/reset_pass.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
-import '../../componets/loading_button.dart';
+import '../../Componets/loading_button.dart';
 import '../../constants/constants.dart';
 import '../../helper/keyboard.dart';
 import '../../provider/connectivity_provider.dart';

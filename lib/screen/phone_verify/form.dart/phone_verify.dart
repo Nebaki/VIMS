@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mob_app/Componets/Custom_Icons.dart';
-import 'package:mob_app/componets/loading_button.dart';
+import 'package:mob_app/Componets/loading_button.dart';
 import 'package:mob_app/controller/auth/auth.dart';
 import '../../../constants/constants.dart';
 import '../../../controller/phone_verify/check_phone.dart';

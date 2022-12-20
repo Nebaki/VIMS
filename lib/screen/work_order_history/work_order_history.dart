@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mob_app/componets/row_column_text.dart';
+import 'package:mob_app/Componets/row_column_text.dart';
 import 'package:mob_app/util/no_internet.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../componets/circular_tap.dart';
-import '../../componets/custome_text.dart';
+import '../../Componets/circular_tap.dart';
+import '../../Componets/custome_text.dart';
 import '../../constants/constants.dart';
 import 'package:http/http.dart' as http;
 import '../../models/work_order_history/work_order_history.dart';
