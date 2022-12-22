@@ -27,11 +27,11 @@ class AuthController extends GetxController {
   String? role;
   CheckPhoneController checkphone = Get.put(CheckPhoneController());
   late String replacedPhone = '';
-  late String FcmToken = '';
 
   Future<void> signInUser({
     required BuildContext context,
   }) async {
+    String? token = await FirebaseMessaging.instance.getToken();
     isLoading.value = true;
     Future.delayed(Duration(seconds: 7));
     LoginphoneController.text.startsWith('0')
@@ -42,11 +42,14 @@ class AuthController extends GetxController {
     try {
       var url =
           Uri.parse(ApiEndPoints.baseurl + ApiEndPoints.authendpoints.login);
+      print(url);
 
       Map body = {
         "phone": replacedPhone,
         "password": LoginpassController.text,
+        "fcm_token": token
       };
+      print(body);
       var res = await http.post(url,
           body: jsonEncode(body),
           headers: {'Content-Type': 'application/json; charset=UTF-8'});
@@ -63,10 +66,11 @@ class AuthController extends GetxController {
             await prefs.setString('phone', data['data']['user']['phone']);
             print(replacedPhone);
             Get.offAllNamed("/vehicleListForCurrentWorkorder");
-            // isLoading.value = false;
+            isLoading.value = false;
           });
       isLoading.value = false;
     } catch (e) {
+      isLoading.value = false;
       showSnackBar(e.toString());
     }
   }
@@ -74,12 +78,6 @@ class AuthController extends GetxController {
   void signUpUser({
     required BuildContext context,
   }) async {
-    late FirebaseMessaging messaging;
-    messaging = FirebaseMessaging.instance;
-    messaging.getToken().then((value) {
-      FcmToken = value!;
-      
-    });
     isLoading.value = true;
     print(checkphone.phoneController.text + "neba");
     checkphone.phoneController.text.startsWith('0')
@@ -95,7 +93,6 @@ class AuthController extends GetxController {
         "password": passController.text,
         "name": fullNameController.text,
         "phone": replacedPhone,
-        // " ": FcmToken    
       };
 
       print(body);
@@ -138,23 +135,18 @@ class AuthController extends GetxController {
           body: body,
           headers: {HttpHeaders.authorizationHeader: 'Bearer' + token});
       print(res.body);
-      if(res.statusCode == 200){
-Get.offNamed("/profile");
-            showSnackBar("Password is changed Successfully");
-      }else if(res.statusCode ==401){
-         var url_ = Uri.parse(
+      if (res.statusCode == 200) {
+        Get.offNamed("/profile");
+        showSnackBar("Password is changed Successfully");
+      } else if (res.statusCode == 401) {
+        var url_ = Uri.parse(
             ApiEndPoints.baseurl + ApiEndPoints.authendpoints.refreshToken);
         var res_ = await http.post(url_,
             headers: {HttpHeaders.authorizationHeader: "Bearer" + token});
         var data = json.decode(res_.body)["data"];
-        if (res_.statusCode==200) {
-
-
-
-          
-        }
+        if (res_.statusCode == 200) {}
       }
-      
+
       isLoading.value = false;
     } catch (e) {
       print(e.toString());

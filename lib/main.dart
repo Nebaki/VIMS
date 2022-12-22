@@ -43,11 +43,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: providers.provider_,
       child: GetMaterialApp(
-      theme: theme(),
-      getPages: AppPages.routes,
-    ),
+        debugShowCheckedModeBanner: false,
+        theme: theme(),
+        getPages: AppPages.routes,
+      ),
     );
-
-    
   }
 }

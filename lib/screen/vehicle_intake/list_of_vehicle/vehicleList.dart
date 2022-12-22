@@ -67,6 +67,7 @@ class _VehicleListIntakePartState extends State<VehicleListIntakePart>
                               text: 'Color',
                             ),
                           ),
+                          DataColumn(label: Text("")),
                         ],
                         rows: vehicleview.vehicleList
                             .map(((element) => DataRow(
@@ -85,6 +86,7 @@ class _VehicleListIntakePartState extends State<VehicleListIntakePart>
                                               element.plateNumber.toString())),
                                       DataCell(RowText(
                                           text: element.color.toString())),
+                                      DataCell(Icon(Icons.forward))
                                     ])))
                             .toList(),
                       ),

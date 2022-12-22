@@ -26,10 +26,13 @@ class ColumnText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text(text,
-          style:
-              TextStyle(color: KlighyBlackColor, fontWeight: FontWeight.bold)),
+    return Padding(
+      padding: const EdgeInsets.only(left: 18.0),
+      child: Container(
+        child: Text(text,
+            style: TextStyle(
+                color: KlighyBlackColor, fontWeight: FontWeight.bold)),
+      ),
     );
   }
 }

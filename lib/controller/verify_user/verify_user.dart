@@ -31,14 +31,14 @@ class checkuserController extends GetxController {
           ? replacedPhone = phoneController.text.replaceFirst('0', '+251')
           : replacedPhone = phoneController.text;
       var url = Uri.parse(
-              ApiEndPoints.baseurl + ApiEndPoints.authendpoints.check_user)
-          .replace(queryParameters: {
-        'phone': replacedPhone,
-      });
-      var headers = {
-        HttpHeaders.contentTypeHeader: 'application/json',
+              ApiEndPoints.baseurl + ApiEndPoints.authendpoints.check_user);
+              Map body = {
+        "phone": replacedPhone,
       };
-      final response = await http.get(url, headers: headers);
+      print( replacedPhone);
+      var response = await http.post(url,
+          body: jsonEncode(body),
+          headers: {'Content-Type': 'application/json; charset=UTF-8'});
       var data = jsonDecode(response.body.toString());
       if (response.statusCode == 200) {
         if (data["status"] == true) {

@@ -1,5 +1,5 @@
 class ApiEndPoints {
-  static final String baseurl = "http://vims.afrimedtravel.com/api/";
+  static final String baseurl = "https://vims.kabbatransport.com/api/";
   static _AuthEndPoints authendpoints = _AuthEndPoints();
 }
 
@@ -15,4 +15,5 @@ class _AuthEndPoints {
   final String workOrderHistory = "work-orders/get-history/";
   final String refreshToken = "auth/refresh";
   final String vehicle = 'vehicles/get-my-vehicles';
+  final String vehiclItem = 'vehicle-intakes/get-by-vehicle/';
 }

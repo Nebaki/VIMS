@@ -28,6 +28,6 @@ void httpErrorHandle({
       showSnackBar("User exist in this profile!");
       break;
     default:
-      showSnackBar(response.body);
+      print(response.body.toString());
   }
 }
