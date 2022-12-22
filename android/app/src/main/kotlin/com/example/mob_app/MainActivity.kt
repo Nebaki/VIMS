@@ -1,4 +1,4 @@
-package com.example.mob_app
+package com.psts.vims
 
 import io.flutter.embedding.android.FlutterActivity
 
