@@ -16,4 +16,6 @@ class _AuthEndPoints {
   final String refreshToken = "auth/refresh";
   final String vehicle = 'vehicles/get-my-vehicles';
   final String vehiclItem = 'vehicle-intakes/get-by-vehicle/';
+  final String lubrication = 'work-orders/lubrications/';
+  final String workorderDetail = 'work-orders/details/';
 }

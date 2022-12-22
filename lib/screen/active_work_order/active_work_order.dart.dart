@@ -8,9 +8,7 @@ import 'package:mob_app/screen/sign_in/signin.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../../Componets/circular_tap.dart';
 import '../../Componets/custome_text.dart';
-import '../../Componets/row_column_text.dart';
 import '../../constants/constants.dart';
 import '../../models/work_order_for_vehicle/work_order_for_vehicle.dart';
 import '../../provider/connectivity_provider.dart';
@@ -109,12 +107,14 @@ class _current_work_orderState extends State<current_work_order> {
                               leading: Text((index + 1).toString()),
                               title: Row(
                                 children: [
-                                  ColumnText(
-                                      text: active[index]
-                                          .totalLubricationCost
-                                          .toString()),
-                                  ColumnText(
-                                      text: active[index].status.toString())
+                                  Text(active[index]
+                                      .totalLubricationCost
+                                      .toString()),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 28.0),
+                                    child:
+                                        Text(active[index].status.toString()),
+                                  )
                                 ],
                               ),
                               children: [
